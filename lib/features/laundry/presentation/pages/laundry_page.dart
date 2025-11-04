@@ -374,7 +374,7 @@ class _MachineStackGrid extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 0.75,
+          childAspectRatio: 0.7, // Reduced from 0.75 to give more vertical space
         ),
         itemCount: roomMachines.length,
         itemBuilder: (context, index) {
@@ -400,18 +400,22 @@ class _MachineStackCard extends StatelessWidget {
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Stack label
             Text(
               stack.label,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
+                fontSize: 13,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             // Dryer (top)
             Expanded(
               child: _MachineWidget(
@@ -422,7 +426,7 @@ class _MachineStackCard extends StatelessWidget {
                 stack: stack,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             // Washer (bottom)
             Expanded(
               child: _MachineWidget(
@@ -487,7 +491,7 @@ class _MachineWidget extends StatelessWidget {
       onTap: () => _showMachineDetailBottomSheet(context, machineType),
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
@@ -498,47 +502,61 @@ class _MachineWidget extends StatelessWidget {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Machine icon
             Icon(
               icon,
-              size: 24,
+              size: 18,
               color: statusColor,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             // Machine type
-            Text(
-              machineType,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Text(
+                machineType,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 1),
             // Status badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
                 color: statusColor,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 statusText,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: Colors.white,
-                  fontSize: 10,
+                  fontSize: 8,
                   fontWeight: FontWeight.bold,
+                  height: 1.0,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            // ETA countdown
+            // ETA countdown (compact)
             if (etaMinutes != null && etaMinutes! > 0) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 1),
               Text(
                 '~${etaMinutes}m',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: statusColor,
                   fontWeight: FontWeight.w600,
+                  fontSize: 9,
+                  height: 1.0,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ],

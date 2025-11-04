@@ -21,9 +21,9 @@ class NextEventWidget extends StatelessWidget {
     
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+        child: Container(
         height: _getResponsiveHeight(context), // Responsive height
-        margin: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           // CityU gradient background - orange to burgundy
           gradient: const LinearGradient(
@@ -51,22 +51,22 @@ class NextEventWidget extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Week number in top right
+            // Week number in top right - more compact
             if (weekNumber != null)
               Positioned(
-                top: 16,
-                right: 16,
+                top: 12,
+                right: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'W$weekNumber',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -75,7 +75,7 @@ class NextEventWidget extends StatelessWidget {
             
             // Main content
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: nextEvent != null 
                   ? _buildEventContent(context, nextEvent!)
                   : _buildPlaceholderContent(context),
@@ -95,96 +95,106 @@ class NextEventWidget extends StatelessWidget {
       children: [
         // Event type badge
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
             color: AppColors.secondaryOrange.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             event.type.name.toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
               color: AppColors.secondaryOrange,
               fontWeight: FontWeight.bold,
+              fontSize: 10,
             ),
           ),
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Event title
-        Text(
-          event.title,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
         ),
         
         const SizedBox(height: 8),
         
-        // Course code if available
-        if (event.courseCode != null)
+        // Event title
+        Text(
+          event.title,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        
+        // Course code if available - inline with title
+        if (event.courseCode != null) ...[
+          const SizedBox(height: 4),
           Text(
             event.courseCode!,
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: theme.textTheme.titleSmall?.copyWith(
               color: Colors.white.withOpacity(0.9),
+              fontSize: 14,
             ),
           ),
+        ],
         
         const Spacer(),
         
-        // Time and location info
+        // Time and location info - more compact
         Row(
           children: [
             Icon(
               Icons.schedule,
-              size: 20,
+              size: 16,
               color: Colors.white.withOpacity(0.8),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Expanded(
               child: Text(
                 '${AppDateUtils.getRelativeDateString(event.startTime)} at ${AppDateUtils.formatTime(event.startTime)}',
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withOpacity(0.9),
+                  fontSize: 12,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
         
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         
         Row(
           children: [
             Icon(
               Icons.location_on,
-              size: 20,
+              size: 16,
               color: Colors.white.withOpacity(0.8),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Expanded(
               child: Text(
                 event.room != null 
                     ? '${event.location}, ${event.room}'
                     : event.location,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withOpacity(0.9),
+                  fontSize: 12,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
         
-        const SizedBox(height: 16),
+        const SizedBox(height: 4),
         
-        // Tap hint
+        // Tap hint - smaller and more subtle
         Text(
           'Tap to view timetable',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 10,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -243,16 +253,16 @@ class NextEventWidget extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     
-    // Adjust height based on screen size and orientation
+    // Adjust height based on screen size and orientation - reduced for more compact layout
     if (screenWidth > 600) {
       // Tablet or larger screens
-      return screenHeight * 0.35;
+      return screenHeight * 0.25;
     } else if (screenHeight < 700) {
       // Smaller phone screens
-      return screenHeight * 0.35;
+      return screenHeight * 0.25;
     } else {
-      // Default phone screens
-      return screenHeight * 0.4;
+      // Default phone screens - reduced from 0.4 to 0.28
+      return screenHeight * 0.28;
     }
   }
 }

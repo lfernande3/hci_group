@@ -98,6 +98,12 @@ class HomePage extends StatelessWidget {
               onTap: () => context.go(RouteConstants.timetable),
             ),
             
+            // New Features Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: _NewFeaturesSection(),
+            ),
+            
             // Grid Section
             const Padding(
               padding: EdgeInsets.all(16),
@@ -167,12 +173,198 @@ class HomePage extends StatelessWidget {
   }
 }
 
+class _NewFeaturesSection extends StatelessWidget {
+  const _NewFeaturesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final newFeatures = [
+      {
+        'title': 'Room Booking',
+        'subtitle': 'Reserve study rooms & facilities',
+        'icon': Icons.event_available,
+        'color': AppColors.primary,
+        'route': RouteConstants.booking,
+      },
+      {
+        'title': 'Laundry Status',
+        'subtitle': 'Check machine availability',
+        'icon': Icons.local_laundry_service,
+        'color': AppColors.secondaryOrange,
+        'route': RouteConstants.laundry,
+      },
+      {
+        'title': 'Print Documents',
+        'subtitle': 'Submit print jobs anywhere',
+        'icon': Icons.print,
+        'color': AppColors.secondaryPurple,
+        'route': RouteConstants.print,
+      },
+      {
+        'title': 'Campus Events',
+        'subtitle': 'Discover activities & clubs',
+        'icon': Icons.event,
+        'color': AppColors.info,
+        'route': RouteConstants.events,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'NEW',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Enhanced Features',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 150, // Increased height to prevent overflow
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: newFeatures.length,
+            padding: const EdgeInsets.only(left: 4, right: 4), // Add padding to prevent clipping
+            itemBuilder: (context, index) {
+              final feature = newFeatures[index];
+              return Container(
+                width: 160, // Optimized width for better fit
+                margin: EdgeInsets.only(right: index == newFeatures.length - 1 ? 0 : 12),
+                child: Card(
+                  elevation: 6, // Increased elevation for better contrast
+                  shadowColor: Colors.black.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: (feature['color'] as Color).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () => context.go(feature['route'] as String),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  (feature['color'] as Color).withOpacity(0.15),
+                                  (feature['color'] as Color).withOpacity(0.08),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: (feature['color'] as Color).withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              feature['icon'] as IconData,
+                              color: feature['color'] as Color,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  feature['title'] as String,
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 13,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  feature['subtitle'] as String,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                    fontSize: 11,
+                                    height: 1.15,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _GridSection extends StatelessWidget {
   const _GridSection();
 
   @override
   Widget build(BuildContext context) {
     final gridItems = [
+      // New enhanced features
+      {
+        'title': 'Room Booking',
+        'icon': Icons.event_available,
+        'route': RouteConstants.booking,
+      },
+      {
+        'title': 'Laundry Status',
+        'icon': Icons.local_laundry_service,
+        'route': RouteConstants.laundry,
+      },
+      {
+        'title': 'Print Documents',
+        'icon': Icons.print,
+        'route': RouteConstants.print,
+      },
+      {
+        'title': 'Campus Events',
+        'icon': Icons.event,
+        'route': RouteConstants.events,
+      },
+      // Existing features
       {
         'title': 'Student Life',
         'icon': Icons.groups,

@@ -253,6 +253,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 width: 100,
                 height: 100,
                 fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.school,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
               ),
             ),
           ),
