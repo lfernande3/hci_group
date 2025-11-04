@@ -66,11 +66,11 @@ All tasks assume:
 
 | ID | Task | Owner | Est. Effort | Dependencies | Status |
 |----|------|-------|-------------|--------------|--------|
-| T-211 | Build **Laundry Room Selector** (dropdown or chips) | @dev2 | 2h | T-106 | [ ] |
-| T-212 | Build **Machine Stack Grid** (Dryer + Washer, status badge) | @dev2 | 5h | T-103 | [ ] |
-| T-213 | Build **Machine Detail Bottom Sheet** (countdown, Notify buttons) | @dev2 | 4h | T-212 | [ ] |
-| T-214 | Add **Filter Chips** + **Segmented Control** (All | Washers | Dryers | Free) | @design | 3h | T-212 | [ ] |
-| T-215 | Build **Alert Center Page** (list of active alerts) | @dev2 | 3h | T-213 | [ ] |
+| T-211 | Build **Laundry Room Selector** (dropdown or chips) | @dev2 | 2h | T-106 | [x] |
+| T-212 | Build **Machine Stack Grid** (Dryer + Washer, status badge) | @dev2 | 5h | T-103 | [x] |
+| T-213 | Build **Machine Detail Bottom Sheet** (countdown, Notify buttons) | @dev2 | 4h | T-212 | [x] |
+| T-214 | Add **Filter Chips** + **Segmented Control** (All | Washers | Dryers | Free) | @design | 3h | T-212 | [x] |
+| T-215 | Build **Alert Center Page** (list of active alerts) | @dev2 | 3h | T-213 | [x] |
 
 ### **In-App Print Submission**
 

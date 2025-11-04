@@ -15,6 +15,7 @@ import '../../features/qr/presentation/pages/qr_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/booking/presentation/pages/booking_page.dart';
+import '../../features/laundry/presentation/pages/laundry_page.dart';
 
 // Feature imports - providers
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -175,7 +176,7 @@ class AppRouter {
           GoRoute(
             path: RouteConstants.laundry,
             name: 'laundry',
-            builder: (context, state) => const _PlaceholderPage(title: 'Laundry Management'),
+            builder: (context, state) => const LaundryPage(),
           ),
           GoRoute(
             path: RouteConstants.print,
