@@ -58,9 +58,9 @@ All tasks assume:
 | ID | Task | Owner | Est. Effort | Dependencies | Status |
 |----|------|-------|-------------|--------------|--------|
 | T-201 | Build **TabBar** (Study, Classrooms, Sports, Music) | @dev1 | 2h | T-106 | [x] |
-| T-202 | Build **Timetable Grid** (rooms × time slots) with color-coded slots | @dev1 | 6h | T-102 | [ ] |
-| T-203 | Build **Room Card** (name, location, capacity, tags) | @design | 2h | T-202 | [ ] |
-| T-204 | Implement **Slot Tap → Confirmation Modal** (mock booking) | @dev1 | 3h | T-202 | [ ] |
+| T-202 | Build **Timetable Grid** (rooms × time slots) with color-coded slots | @dev1 | 6h | T-102 | [x] |
+| T-203 | Build **Room Card** (name, location, capacity, tags) | @design | 2h | T-202 | [x] |
+| T-204 | Implement **Slot Tap → Confirmation Modal** (mock booking) | @dev1 | 3h | T-202 | [x] |
 
 ### **Laundry Management**
 
