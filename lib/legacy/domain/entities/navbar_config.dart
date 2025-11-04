@@ -182,6 +182,34 @@ class NavbarItem extends Equatable {
         route: '/cap',
       );
 
+  factory NavbarItem.booking() => const NavbarItem(
+        id: 'booking',
+        label: 'Booking',
+        icon: Icons.event_seat,
+        route: '/booking',
+      );
+
+  factory NavbarItem.laundry() => const NavbarItem(
+        id: 'laundry',
+        label: 'Laundry',
+        icon: Icons.local_laundry_service,
+        route: '/laundry',
+      );
+
+  factory NavbarItem.printSubmission() => const NavbarItem(
+        id: 'print',
+        label: 'Print',
+        icon: Icons.print,
+        route: '/print',
+      );
+
+  factory NavbarItem.events() => const NavbarItem(
+        id: 'events',
+        label: 'Events',
+        icon: Icons.event_note,
+        route: '/events',
+      );
+
   /// Copy with new values
   NavbarItem copyWith({
     String? id,

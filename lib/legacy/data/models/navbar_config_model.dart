@@ -205,6 +205,14 @@ class NavbarItemModel extends NavbarItem {
         return Icons.newspaper;
       case 'school':
         return Icons.school;
+      case 'booking':
+        return Icons.event_seat;
+      case 'laundry':
+        return Icons.local_laundry_service;
+      case 'print':
+        return Icons.print;
+      case 'events':
+        return Icons.event_note;
       default:
         return Icons.settings;
     }
@@ -227,6 +235,10 @@ class NavbarItemModel extends NavbarItem {
     if (icon == Icons.emergency) return 'emergency';
     if (icon == Icons.newspaper) return 'news';
     if (icon == Icons.school) return 'school';
+    if (icon == Icons.event_seat) return 'booking';
+    if (icon == Icons.local_laundry_service) return 'laundry';
+    if (icon == Icons.print) return 'print';
+    if (icon == Icons.event_note) return 'events';
     return 'settings';
   }
 }

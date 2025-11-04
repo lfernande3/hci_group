@@ -142,6 +142,34 @@ class MockNavbarDataSource {
       route: '/cap',
       isEnabled: false,
     ),
+    NavbarItemModel(
+      id: 'booking',
+      label: 'Booking',
+      icon: Icons.event_seat,
+      route: '/booking',
+      isEnabled: false,
+    ),
+    NavbarItemModel(
+      id: 'laundry',
+      label: 'Laundry',
+      icon: Icons.local_laundry_service,
+      route: '/laundry',
+      isEnabled: false,
+    ),
+    NavbarItemModel(
+      id: 'print',
+      label: 'Print',
+      icon: Icons.print,
+      route: '/print',
+      isEnabled: false,
+    ),
+    NavbarItemModel(
+      id: 'events',
+      label: 'Events',
+      icon: Icons.event_note,
+      route: '/events',
+      isEnabled: false,
+    ),
   ];
 
   /// Get default navbar configuration

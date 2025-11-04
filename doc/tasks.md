@@ -41,11 +41,11 @@ All tasks assume:
 | **T-101** | **Setup** | Initialize `lib/data/demo/` folder | @lead | 1h | – | [x] |
 | **T-102** | **Data** | Create `booking_data.dart` with 3+ rooms per type (Study, Class, Sports, Music) + availability matrix | @dev1 | 3h | T-101 | [x] |
 | **T-103** | **Data** | Create `laundry_data.dart` with 2 dorm floors, 6+ machine stacks, varied statuses (Free, In Use, Finishing Soon) | @dev2 | 3h | T-101 | [x] |
-| **T-104** | **Data** | Create `printing_data.dart` with AC2/CMC/Library queues, pricing, release steps | @dev1 | 2h | T-101 | [ ] |
-| **T-105** | **Data** | Create `events_data.dart` with 10+ events (CRESDA, clubs, curated) | @dev2 | 2h | T-101 | [ ] |
-| **T-106** | **Navigation** | Add 4 new routes to `GoRouter` (Booking, Laundry, Print, Events) | @lead | 2h | – | [ ] |
-| **T-107** | **Navbar** | Add 4 new navbar icons to customization list (Booking, Laundry, Print, Events) | @lead | 1h | Legacy | [ ] |
-| **T-108** | **Theme** | Verify `AppTheme` from `legacy/` works in new screens (light/dark) | @design | 2h | Legacy | [ ] |
+| **T-104** | **Data** | Create `printing_data.dart` with AC2/CMC/Library queues, pricing, release steps | @dev1 | 2h | T-101 | [x] |
+| **T-105** | **Data** | Create `events_data.dart` with 10+ events (CRESDA, clubs, curated) | @dev2 | 2h | T-101 | [x] |
+| **T-106** | **Navigation** | Add 4 new routes to `GoRouter` (Booking, Laundry, Print, Events) | @lead | 2h | – | [x] |
+| **T-107** | **Navbar** | Add 4 new navbar icons to customization list (Booking, Laundry, Print, Events) | @lead | 1h | Legacy | [x] |
+| **T-108** | **Theme** | Verify `AppTheme` from `legacy/` works in new screens (light/dark) | @design | 2h | Legacy | [x] |
 
 > **Week 1 Deliverable**: All demo data + navigation scaffold in place.
 

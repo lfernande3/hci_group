@@ -158,6 +158,28 @@ class AppRouter {
             name: 'grade-report',
             builder: (context, state) => const _PlaceholderPage(title: 'Grade Report'),
           ),
+          
+          // New feature routes (Week 1 - T-106)
+          GoRoute(
+            path: RouteConstants.booking,
+            name: 'booking',
+            builder: (context, state) => const _PlaceholderPage(title: 'Booking Services'),
+          ),
+          GoRoute(
+            path: RouteConstants.laundry,
+            name: 'laundry',
+            builder: (context, state) => const _PlaceholderPage(title: 'Laundry Management'),
+          ),
+          GoRoute(
+            path: RouteConstants.print,
+            name: 'print',
+            builder: (context, state) => const _PlaceholderPage(title: 'Print Submission'),
+          ),
+          GoRoute(
+            path: RouteConstants.events,
+            name: 'events',
+            builder: (context, state) => const _PlaceholderPage(title: 'Events Dashboard'),
+          ),
         ],
       ),
     ],
@@ -263,6 +285,7 @@ class AppRouter {
 }
 
 /// Placeholder page for routes that are not yet implemented
+/// Uses AppTheme to verify light/dark mode compatibility
 class _PlaceholderPage extends StatelessWidget {
   final String title;
 
@@ -270,32 +293,35 @@ class _PlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+        // AppTheme automatically applied via MaterialApp.router
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.construction,
               size: 64,
-              color: AppColors.primary,
+              color: colorScheme.primary, // Uses theme color
             ),
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 24,
+              style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'This page is under construction',
-              style: TextStyle(
-                color: Colors.grey,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
             // Add settings button for Account page
@@ -307,11 +333,7 @@ class _PlaceholderPage extends StatelessWidget {
                 },
                 icon: const Icon(Icons.settings),
                 label: const Text('Go to Settings'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
+                // Uses AppTheme.elevatedButtonTheme automatically
               ),
             ],
           ],

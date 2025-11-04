@@ -27,4 +27,10 @@ class RouteConstants {
   static const String studentLife = '/student-life';
   static const String campus = '/campus';
   static const String gradeReport = '/grade-report';
+  
+  // New feature routes (Week 1)
+  static const String booking = '/booking';
+  static const String laundry = '/laundry';
+  static const String print = '/print';
+  static const String events = '/events';
 }
