@@ -1,0 +1,131 @@
+{
+  "academicEvents": [
+    {
+      "id": "academic_1",
+      "title": "Semester 1 Begins",
+      "description": "First semester classes begin",
+      "startTime": "2024-09-01T09:00:00.000Z",
+      "endTime": "2024-09-01T17:00:00.000Z",
+      "location": "Campus Wide",
+      "room": null,
+      "type": "event",
+      "courseCode": null,
+      "instructor": null,
+      "isAllDay": true,
+      "category": "Academic Calendar"
+    },
+    {
+      "id": "academic_2",
+      "title": "Mid-term Break",
+      "description": "Mid-semester break period",
+      "startTime": "2024-10-15T00:00:00.000Z",
+      "endTime": "2024-10-22T23:59:59.000Z",
+      "location": "Campus Wide", 
+      "room": null,
+      "type": "event",
+      "courseCode": null,
+      "instructor": null,
+      "isAllDay": true,
+      "category": "Academic Calendar"
+    },
+    {
+      "id": "academic_3",
+      "title": "Final Examinations",
+      "description": "Final examination period begins",
+      "startTime": "2024-12-05T09:00:00.000Z",
+      "endTime": "2024-12-19T18:00:00.000Z",
+      "location": "Various Locations",
+      "room": null,
+      "type": "exam",
+      "courseCode": null,
+      "instructor": null,
+      "isAllDay": false,
+      "category": "Examinations"
+    },
+    {
+      "id": "academic_4",
+      "title": "Semester 2 Registration",
+      "description": "Course registration opens for Semester 2",
+      "startTime": "2024-11-01T09:00:00.000Z",
+      "endTime": "2024-11-15T17:00:00.000Z",
+      "location": "Online Portal",
+      "room": null,
+      "type": "event",
+      "courseCode": null,
+      "instructor": null,
+      "isAllDay": false,
+      "category": "Registration"
+    }
+  ],
+  "campusEvents": [
+    {
+      "id": "campus_1",
+      "title": "Open Day 2024",
+      "description": "Annual university open day for prospective students",
+      "startTime": "2024-10-12T09:00:00.000Z",
+      "endTime": "2024-10-12T17:00:00.000Z",
+      "location": "Main Campus",
+      "room": "Various Venues",
+      "type": "event",
+      "category": "Campus Life"
+    },
+    {
+      "id": "campus_2",
+      "title": "Career Fair",
+      "description": "Annual career fair with industry partners",
+      "startTime": "2024-10-25T10:00:00.000Z",
+      "endTime": "2024-10-25T16:00:00.000Z",
+      "location": "Student Activity Centre",
+      "room": "Main Hall",
+      "type": "event",
+      "category": "Career"
+    },
+    {
+      "id": "campus_3",
+      "title": "International Cultural Night",
+      "description": "Celebration of diverse cultures at CityU",
+      "startTime": "2024-11-08T18:00:00.000Z",
+      "endTime": "2024-11-08T22:00:00.000Z",
+      "location": "Academic Building 1",
+      "room": "Multi-purpose Hall",
+      "type": "event",
+      "category": "Cultural"
+    }
+  ],
+  "upcomingDeadlines": [
+    {
+      "id": "deadline_1",
+      "title": "Assignment 2 Due - CS3201",
+      "description": "Computer Networks Assignment 2 submission deadline",
+      "startTime": "2024-10-15T23:59:59.000Z",
+      "endTime": "2024-10-15T23:59:59.000Z",
+      "location": "Online Submission",
+      "type": "deadline",
+      "courseCode": "CS3201",
+      "instructor": "Dr. Smith",
+      "category": "Assignment"
+    },
+    {
+      "id": "deadline_2",
+      "title": "Project Proposal - CS4186",
+      "description": "Mobile App Development project proposal due",
+      "startTime": "2024-10-20T23:59:59.000Z",
+      "endTime": "2024-10-20T23:59:59.000Z",
+      "location": "Online Submission",
+      "type": "deadline",
+      "courseCode": "CS4186",
+      "instructor": "Prof. Johnson",
+      "category": "Project"
+    },
+    {
+      "id": "deadline_3",
+      "title": "CAP Activity Registration",
+      "description": "Deadline for CAP activity registration",
+      "startTime": "2024-10-18T17:00:00.000Z",
+      "endTime": "2024-10-18T17:00:00.000Z",
+      "location": "CAP Office",
+      "type": "deadline",
+      "category": "CAP"
+    }
+  ]
+}

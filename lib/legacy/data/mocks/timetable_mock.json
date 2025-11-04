@@ -1,0 +1,182 @@
+{
+  "timetable": {
+    "id": "timetable_user_123",
+    "userId": "user_123",
+    "semester": "Semester 1",
+    "year": 2024,
+    "lastUpdated": "2024-10-07T10:00:00.000Z",
+    "events": [
+      {
+        "id": "event_1",
+        "title": "Computer Networks",
+        "description": "CS3201 - Introduction to Computer Networks",
+        "startTime": "2024-10-07T14:00:00.000Z",
+        "endTime": "2024-10-07T15:30:00.000Z",
+        "location": "Academic Building 1",
+        "room": "AC1-LT9",
+        "type": "lecture",
+        "courseCode": "CS3201",
+        "instructor": "Dr. Smith",
+        "isAllDay": false
+      },
+      {
+        "id": "event_2",
+        "title": "Mobile App Development",
+        "description": "CS4186 - Mobile Application Development",
+        "startTime": "2024-10-07T16:00:00.000Z",
+        "endTime": "2024-10-07T17:30:00.000Z",
+        "location": "Yeung Building",
+        "room": "Y6-603",
+        "type": "tutorial",
+        "courseCode": "CS4186",
+        "instructor": "Prof. Johnson",
+        "isAllDay": false
+      },
+      {
+        "id": "event_3",
+        "title": "Database Systems",
+        "description": "CS3334 - Database Systems",
+        "startTime": "2024-10-08T09:00:00.000Z",
+        "endTime": "2024-10-08T10:30:00.000Z",
+        "location": "Academic Building 2",
+        "room": "AC2-LT7",
+        "type": "lecture",
+        "courseCode": "CS3334",
+        "instructor": "Dr. Wong",
+        "isAllDay": false
+      },
+      {
+        "id": "event_4",
+        "title": "Software Engineering",
+        "description": "CS3342 - Software Engineering",
+        "startTime": "2024-10-08T14:00:00.000Z",
+        "endTime": "2024-10-08T15:30:00.000Z",
+        "location": "Lau Ming Wai Academic Building",
+        "room": "LMW-LT2",
+        "type": "lecture",
+        "courseCode": "CS3342",
+        "instructor": "Prof. Chen",
+        "isAllDay": false
+      },
+      {
+        "id": "event_5",
+        "title": "AI and Machine Learning",
+        "description": "CS4480 - Artificial Intelligence",
+        "startTime": "2024-10-14T10:00:00.000Z",
+        "endTime": "2024-10-14T11:30:00.000Z",
+        "location": "Academic Building 3",
+        "room": "AC3-LT4",
+        "type": "lecture",
+        "courseCode": "CS4480",
+        "instructor": "Dr. Lee",
+        "isAllDay": false
+      },
+      {
+        "id": "event_6",
+        "title": "CS3201 Final Exam",
+        "description": "Computer Networks Final Examination",
+        "startTime": "2024-10-21T09:00:00.000Z",
+        "endTime": "2024-10-21T12:00:00.000Z",
+        "location": "Sports Complex",
+        "room": "SC-Hall A",
+        "type": "exam",
+        "courseCode": "CS3201",
+        "instructor": "Dr. Smith",
+        "isAllDay": false
+      }
+    ]
+  },
+  "weeklySchedule": {
+    "monday": [
+      {
+        "id": "weekly_mon_1",
+        "title": "Database Systems",
+        "courseCode": "CS3334",
+        "startTime": "09:00",
+        "endTime": "10:30",
+        "location": "AC2-LT7",
+        "instructor": "Dr. Wong"
+      },
+      {
+        "id": "weekly_mon_2",
+        "title": "Software Engineering Lab",
+        "courseCode": "CS3342",
+        "startTime": "14:00",
+        "endTime": "17:00",
+        "location": "Y7-301",
+        "instructor": "TA Chen"
+      }
+    ],
+    "tuesday": [
+      {
+        "id": "weekly_tue_1",
+        "title": "Computer Networks",
+        "courseCode": "CS3201",
+        "startTime": "14:00",
+        "endTime": "15:30",
+        "location": "AC1-LT9",
+        "instructor": "Dr. Smith"
+      },
+      {
+        "id": "weekly_tue_2",
+        "title": "Mobile App Development",
+        "courseCode": "CS4186",
+        "startTime": "16:00",
+        "endTime": "17:30",
+        "location": "Y6-603",
+        "instructor": "Prof. Johnson"
+      }
+    ],
+    "wednesday": [
+      {
+        "id": "weekly_wed_1",
+        "title": "AI and Machine Learning",
+        "courseCode": "CS4480",
+        "startTime": "10:00",
+        "endTime": "11:30",
+        "location": "AC3-LT4",
+        "instructor": "Dr. Lee"
+      }
+    ],
+    "thursday": [
+      {
+        "id": "weekly_thu_1",
+        "title": "Database Systems Tutorial",
+        "courseCode": "CS3334",
+        "startTime": "11:00",
+        "endTime": "12:30",
+        "location": "AC2-CR5",
+        "instructor": "TA Wong"
+      },
+      {
+        "id": "weekly_thu_2",
+        "title": "Software Engineering",
+        "courseCode": "CS3342",
+        "startTime": "14:00",
+        "endTime": "15:30",
+        "location": "LMW-LT2",
+        "instructor": "Prof. Chen"
+      }
+    ],
+    "friday": [
+      {
+        "id": "weekly_fri_1",
+        "title": "Computer Networks Tutorial",
+        "courseCode": "CS3201",
+        "startTime": "09:00",
+        "endTime": "10:30",
+        "location": "AC1-CR3",
+        "instructor": "TA Smith"
+      },
+      {
+        "id": "weekly_fri_2",
+        "title": "AI Project Presentation",
+        "courseCode": "CS4480",
+        "startTime": "16:00",
+        "endTime": "18:00",
+        "location": "AC3-LT4",
+        "instructor": "Dr. Lee"
+      }
+    ]
+  }
+}

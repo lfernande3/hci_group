@@ -1,0 +1,77 @@
+{
+  "loggedInUser": {
+    "id": "user_123",
+    "email": "john.doe@student.cityu.edu.hk",
+    "fullName": "John Doe",
+    "studentId": "123456789",
+    "isLoggedIn": true,
+    "profileImageUrl": null,
+    "userType": "student",
+    "preferences": {
+      "darkMode": false,
+      "notificationsEnabled": true,
+      "languageCode": "en"
+    },
+    "academicInfo": {
+      "program": "Computer Science",
+      "year": 3,
+      "gpa": 3.75,
+      "major": "Software Engineering",
+      "minor": "Data Science"
+    }
+  },
+  "guestUser": {
+    "id": "",
+    "email": "",
+    "fullName": "Guest User",
+    "studentId": null,
+    "isLoggedIn": false,
+    "profileImageUrl": null,
+    "userType": "guest",
+    "preferences": {
+      "darkMode": false,
+      "notificationsEnabled": false,
+      "languageCode": "en"
+    }
+  },
+  "exchangeStudent": {
+    "id": "user_456",
+    "email": "maria.garcia@exchange.cityu.edu.hk",
+    "fullName": "Maria Garcia",
+    "studentId": "EX2024001",
+    "isLoggedIn": true,
+    "profileImageUrl": null,
+    "userType": "exchange",
+    "preferences": {
+      "darkMode": true,
+      "notificationsEnabled": true,
+      "languageCode": "es"
+    },
+    "academicInfo": {
+      "program": "Business Administration",
+      "year": 2,
+      "homeUniversity": "Universidad de Barcelona",
+      "exchangePeriod": "2024-2025 Semester 1"
+    }
+  },
+  "staff": {
+    "id": "staff_789",
+    "email": "dr.smith@cityu.edu.hk",
+    "fullName": "Dr. James Smith",
+    "staffId": "STF123456",
+    "isLoggedIn": true,
+    "profileImageUrl": null,
+    "userType": "staff",
+    "preferences": {
+      "darkMode": false,
+      "notificationsEnabled": true,
+      "languageCode": "en"
+    },
+    "staffInfo": {
+      "department": "Computer Science",
+      "position": "Associate Professor",
+      "office": "AC1-8422",
+      "phone": "+852 3442 xxxx"
+    }
+  }
+}
