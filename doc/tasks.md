@@ -76,11 +76,11 @@ All tasks assume:
 
 | ID | Task | Owner | Est. Effort | Dependencies | Status |
 |----|------|-------|-------------|--------------|--------|
-| T-221 | Build **File Upload Mock** (button → fake file) | @dev1 | 1h | T-106 | [ ] |
-| T-222 | Build **Building Selector** with queue preview | @dev1 | 3h | T-104 | [ ] |
-| T-223 | Build **Print Type Selector** (Free B/W, Charged B/W, Color) | @dev1 | 2h | T-222 | [ ] |
-| T-224 | Build **Review & Submit Screen** → Job ID + release steps | @dev1 | 3h | T-223 | [ ] |
-| T-225 | Add **Wi-Fi Detection Banner** (mock) | @design | 1h | T-224 | [ ] |
+| T-221 | Build **File Upload Mock** (button → fake file) | @dev1 | 1h | T-106 | [x] |
+| T-222 | Build **Building Selector** with queue preview | @dev1 | 3h | T-104 | [x] |
+| T-223 | Build **Print Type Selector** (Free B/W, Charged B/W, Color) | @dev1 | 2h | T-222 | [x] |
+| T-224 | Build **Review & Submit Screen** → Job ID + release steps | @dev1 | 3h | T-223 | [x] |
+| T-225 | Add **Wi-Fi Detection Banner** (mock) | @design | 1h | T-224 | [x] |
 
 ### **Events Dashboard**
 

@@ -16,6 +16,7 @@ import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/booking/presentation/pages/booking_page.dart';
 import '../../features/laundry/presentation/pages/laundry_page.dart';
+import '../../features/print/presentation/pages/print_page.dart';
 
 // Feature imports - providers
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -181,7 +182,7 @@ class AppRouter {
           GoRoute(
             path: RouteConstants.print,
             name: 'print',
-            builder: (context, state) => const _PlaceholderPage(title: 'Print Submission'),
+            builder: (context, state) => const PrintPage(),
           ),
           GoRoute(
             path: RouteConstants.events,
