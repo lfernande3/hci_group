@@ -86,11 +86,11 @@ All tasks assume:
 
 | ID | Task | Owner | Est. Effort | Dependencies | Status |
 |----|------|-------|-------------|--------------|--------|
-| T-231 | Build **Event Feed** with `ListView.builder` | @dev2 | 3h | T-106 | [ ] |
-| T-232 | Build **Event Card** (title, time, venue, badges, actions) | @design | 3h | T-105 | [ ] |
-| T-233 | Add **Filter Chips** (Category, Language, Time) | @dev2 | 3h | T-231 | [ ] |
-| T-234 | Add **Search Bar** with mock filtering | @dev2 | 2h | T-231 | [ ] |
-| T-235 | Build **Event Detail View** + Register / Add to Calendar (mock) | @dev2 | 4h | T-232 | [ ] |
+| T-231 | Build **Event Feed** with `ListView.builder` | @dev2 | 3h | T-106 | [x] |
+| T-232 | Build **Event Card** (title, time, venue, badges, actions) | @design | 3h | T-105 | [x] |
+| T-233 | Add **Filter Chips** (Category, Language, Time) | @dev2 | 3h | T-231 | [x] |
+| T-234 | Add **Search Bar** with mock filtering | @dev2 | 2h | T-231 | [x] |
+| T-235 | Build **Event Detail View** + Register / Add to Calendar (mock) | @dev2 | 4h | T-232 | [x] |
 
 > **Week 2 Deliverable**: All core screens built and navigable.
 

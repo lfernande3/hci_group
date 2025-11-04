@@ -17,6 +17,9 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/booking/presentation/pages/booking_page.dart';
 import '../../features/laundry/presentation/pages/laundry_page.dart';
 import '../../features/print/presentation/pages/print_page.dart';
+import '../../features/events/presentation/pages/events_page.dart';
+import '../../features/events/presentation/pages/event_detail_page.dart';
+import '../../data/demo/events_data.dart' show allEvents, Event;
 
 // Feature imports - providers
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -187,7 +190,29 @@ class AppRouter {
           GoRoute(
             path: RouteConstants.events,
             name: 'events',
-            builder: (context, state) => const _PlaceholderPage(title: 'Events Dashboard'),
+            builder: (context, state) => const EventsPage(),
+            routes: [
+              GoRoute(
+                path: ':eventId',
+                name: 'event-detail',
+                builder: (context, state) {
+                  final event = state.extra as Event?;
+                  if (event != null) {
+                    return EventDetailPage(event: event);
+                  }
+                  // Fallback: try to find event by ID
+                  final eventId = state.pathParameters['eventId'];
+                  if (eventId != null) {
+                    final foundEvent = allEvents.firstWhere(
+                      (e) => e.id == eventId,
+                      orElse: () => allEvents.first,
+                    );
+                    return EventDetailPage(event: foundEvent);
+                  }
+                  return const _PlaceholderPage(title: 'Event Not Found');
+                },
+              ),
+            ],
           ),
         ],
       ),
