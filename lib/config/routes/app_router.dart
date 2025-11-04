@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+// Core imports
 import '../../core/constants/route_constants.dart';
 import '../../core/theme/colors.dart';
-import '../pages/home_page.dart';
-import '../pages/onboarding_page.dart';
-import '../pages/timetable_page.dart';
-import '../pages/qr_page.dart';
-import '../pages/settings_page.dart';
-import '../pages/login_page.dart';
-import '../pages/booking_page.dart';
-import '../providers/onboarding_provider.dart';
-import '../providers/user_provider.dart';
-import '../widgets/app_shell.dart';
+import '../../core/presentation/widgets/app_shell.dart';
+
+// Feature imports - pages
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/timetable/presentation/pages/timetable_page.dart';
+import '../../features/qr/presentation/pages/qr_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/booking/presentation/pages/booking_page.dart';
+
+// Feature imports - providers
+import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
+import '../../features/auth/presentation/providers/user_provider.dart';
 
 /// App router configuration using GoRouter
 class AppRouter {
