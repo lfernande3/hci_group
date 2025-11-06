@@ -83,6 +83,12 @@ class NavbarRepositoryImpl implements NavbarRepository {
         NavbarItem.emergency(),
         NavbarItem.news(),
         NavbarItem.cap(),
+        NavbarItem.booking(),
+        NavbarItem.laundry(),
+        NavbarItem.printSubmission(),
+        NavbarItem.events(),
+        NavbarItem.acManagement(),
+        NavbarItem.visitorRegistration(),
       ];
       
       return Right(availableItems);

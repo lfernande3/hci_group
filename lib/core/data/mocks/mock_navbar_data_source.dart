@@ -170,6 +170,20 @@ class MockNavbarDataSource {
       route: '/events',
       isEnabled: false,
     ),
+    NavbarItemModel(
+      id: 'ac_management',
+      label: 'A/C Management',
+      icon: Icons.ac_unit,
+      route: '/ac-management',
+      isEnabled: false,
+    ),
+    NavbarItemModel(
+      id: 'visitor_registration',
+      label: 'Visitor Registration',
+      icon: Icons.person_add,
+      route: '/visitor-registration',
+      isEnabled: false,
+    ),
   ];
 
   /// Get default navbar configuration

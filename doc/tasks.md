@@ -43,8 +43,11 @@ All tasks assume:
 | **T-103** | **Data** | Create `laundry_data.dart` with 2 dorm floors, 6+ machine stacks, varied statuses (Free, In Use, Finishing Soon) | @dev2 | 3h | T-101 | [x] |
 | **T-104** | **Data** | Create `printing_data.dart` with AC2/CMC/Library queues, pricing, release steps | @dev1 | 2h | T-101 | [x] |
 | **T-105** | **Data** | Create `events_data.dart` with 10+ events (CRESDA, clubs, curated) | @dev2 | 2h | T-101 | [x] |
+| **T-105b** | **Data** | Create `dorm_services_data.dart` with A/C balance, usage history, mock visitor data | @dev1 | 3h | T-101 | [x] |
 | **T-106** | **Navigation** | Add 4 new routes to `GoRouter` (Booking, Laundry, Print, Events) | @lead | 2h | – | [x] |
+| **T-106b** | **Navigation** | Add `dorm_services` route to `GoRouter` | @lead | 0.5h | - | [x] |
 | **T-107** | **Navbar** | Add 4 new navbar icons to customization list (Booking, Laundry, Print, Events) | @lead | 1h | Legacy | [x] |
+| **T-107b** | **Navbar** | Add `Dorm Services` icon to customization list | @lead | 0.5h | Legacy | [x] |
 | **T-108** | **Theme** | Verify `AppTheme` from `legacy/` works in new screens (light/dark) | @design | 2h | Legacy | [x] |
 
 > **Week 1 Deliverable**: All demo data + navigation scaffold in place.
@@ -92,6 +95,15 @@ All tasks assume:
 | T-234 | Add **Search Bar** with mock filtering | @dev2 | 2h | T-231 | [x] |
 | T-235 | Build **Event Detail View** + Register / Add to Calendar (mock) | @dev2 | 4h | T-232 | [x] |
 
+### **Dorm Services (A/C & Visitor)**
+
+| ID | Task | Owner | Est. Effort | Dependencies | Status |
+|----|------|-------|-------------|--------------|--------|
+| T-241 | Build **A/C Management screen** (balance, usage chart) | @dev1 | 5h | T-105b, T-106b | [x] |
+| T-242 | Build **Top-Up modal** with mock payment | @dev1 | 3h | T-241 | [x] |
+| T-243 | Build **Visitor Registration screen** with NFC prompt | @dev2 | 4h | T-105b, T-106b | [x] |
+| T-244 | Mock **NFC tap interaction** | @dev2 | 2h | T-243 | [x] |
+
 > **Week 2 Deliverable**: All core screens built and navigable.
 
 ---
@@ -119,9 +131,9 @@ All tasks assume:
 
 | Owner | Total Hours | Key Tasks |
 |-------|-------------|---------|
-| **@lead** | 18h | Setup, nav, polish, demo script |
-| **@dev1** | 25h | Booking, Print, data |
-| **@dev2** | 28h | Laundry, Events, data |
+| **@lead** | 19h | Setup, nav, polish, demo script |
+| **@dev1** | 36h | Booking, Print, Dorm Services, data |
+| **@dev2** | 34h | Laundry, Events, Dorm Services, data |
 | **@design** | 17h | UI components, theme, screenshots |
 
 ---
@@ -156,12 +168,14 @@ lib/
 │   ├── booking_data.dart
 │   ├── laundry_data.dart
 │   ├── printing_data.dart
-│   └── events_data.dart
+│   ├── events_data.dart
+│   └── dorm_services_data.dart
 └── features/
     ├── booking/
     ├── laundry/
     ├── print/
     └── events/
+    └── dorm/
 
 demo/
 ├── cityuhk_demo.mp4       # 2-min walkthrough

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../data/demo/laundry_data.dart';
 import 'alert_center_page.dart';
 import '../../data/models/laundry_alert.dart';
+import '../../data/models/laundry_booking.dart';
 
 /// Laundry Management page with room selector and machine status
 class LaundryPage extends StatefulWidget {
@@ -11,9 +12,10 @@ class LaundryPage extends StatefulWidget {
   State<LaundryPage> createState() => _LaundryPageState();
 }
 
-enum _MachineTypeFilter { all, washers, dryers, free }
+enum _MachineTypeFilter { all, washers, dryers }
 
 class _LaundryPageState extends State<LaundryPage> {
+  String? _selectedHall;
   String? _selectedRoomId;
   _MachineTypeFilter _machineTypeFilter = _MachineTypeFilter.all;
   Set<String> _statusFilters = {}; // 'free', 'finishingSoon'
@@ -22,12 +24,21 @@ class _LaundryPageState extends State<LaundryPage> {
   @override
   void initState() {
     super.initState();
-    // Default to first room
-    if (halls.isNotEmpty) {
-      _selectedRoomId = halls.first.id;
+    // Default to first hall
+    final availableHalls = getAvailableHalls();
+    if (availableHalls.isNotEmpty) {
+      _selectedHall = availableHalls.first;
+      // Set the room ID to the selected hall
+      final selectedRoom = getHallByName(_selectedHall!);
+      if (selectedRoom != null) {
+        _selectedRoomId = selectedRoom.id;
+      }
     }
     // Listen to alert changes to update badge
     _alertManager.addListener(_onAlertsChanged);
+    
+    // Add some fake notifications for demo
+    _addFakeNotifications();
   }
 
   @override
@@ -39,6 +50,66 @@ class _LaundryPageState extends State<LaundryPage> {
   void _onAlertsChanged() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  void _addFakeNotifications() {
+    // Only add fake notifications if there are none already
+    if (_alertManager.alerts.isNotEmpty) return;
+
+    // Find machines that are finishing soon or free to create demo notifications
+    final fakeDemoAlerts = [
+      // Hall 8 - Stack B Dryer finishing in 8m
+      LaundryAlert(
+        id: 'demo-H8-B-dryer-${DateTime.now().millisecondsSinceEpoch}',
+        stackId: 'H8-B',
+        stackLabel: 'Stack B',
+        roomId: 'HALL-8',
+        roomName: 'Hall 8',
+        machineType: 'Dryer',
+        type: AlertType.notifyAtEnd,
+        createdAt: DateTime.now().subtract(const Duration(minutes: 37)), // 45m cycle - 8m remaining
+        gracePeriodMinutes: 5,
+      ),
+      // Hall 8 - Stack F Washer finishing in 1m  
+      LaundryAlert(
+        id: 'demo-H8-F-washer-${DateTime.now().millisecondsSinceEpoch + 1}',
+        stackId: 'H8-F',
+        stackLabel: 'Stack F',
+        roomId: 'HALL-8',
+        roomName: 'Hall 8',
+        machineType: 'Washer',
+        type: AlertType.notifyWhenFree,
+        createdAt: DateTime.now().subtract(const Duration(minutes: 29)), // 30m cycle - 1m remaining
+      ),
+      // Hall 10 - Stack G Washer finishing in 2m
+      LaundryAlert(
+        id: 'demo-H10-G-washer-${DateTime.now().millisecondsSinceEpoch + 2}',
+        stackId: 'H10-G',
+        stackLabel: 'Stack G',
+        roomId: 'HALL-10',
+        roomName: 'Hall 10',
+        machineType: 'Washer',
+        type: AlertType.notifyAtEnd,
+        createdAt: DateTime.now().subtract(const Duration(minutes: 28)), // 30m cycle - 2m remaining
+        gracePeriodMinutes: 10,
+      ),
+      // Hall 11 - Stack D Dryer finishing in 1m
+      LaundryAlert(
+        id: 'demo-H11-D-dryer-${DateTime.now().millisecondsSinceEpoch + 3}',
+        stackId: 'H11-D',
+        stackLabel: 'Stack D',
+        roomId: 'HALL-11',
+        roomName: 'Hall 11',
+        machineType: 'Dryer',
+        type: AlertType.notifyWhenFree,
+        createdAt: DateTime.now().subtract(const Duration(minutes: 44)), // 45m cycle - 1m remaining
+      ),
+    ];
+
+    // Add the fake alerts
+    for (final alert in fakeDemoAlerts) {
+      _alertManager.addAlert(alert);
     }
   }
 
@@ -98,7 +169,7 @@ class _LaundryPageState extends State<LaundryPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Laundry Room Selector (Chips)
+          // Hall and Floor Selector (Dropdowns)
           Container(
             padding: const EdgeInsets.all(16),
             color: colorScheme.surfaceVariant,
@@ -106,71 +177,77 @@ class _LaundryPageState extends State<LaundryPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Select Laundry Room',
+                  'Select Hall',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: halls.map((room) {
-                    final isSelected = _selectedRoomId == room.id;
-                    return FilterChip(
-                      selected: isSelected,
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.local_laundry_service,
-                            size: 18,
-                            color: isSelected
-                                ? colorScheme.onSecondaryContainer
-                                : colorScheme.onSurface,
-                          ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                room.name,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
+                const SizedBox(height: 16),
+                // Hall Dropdown
+                Row(
+                  children: [
+                    Icon(
+                      Icons.local_laundry_service,
+                      size: 20,
+                      color: colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Hall:',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        value: _selectedHall,
+                        isExpanded: true,
+                        underline: Container(
+                          height: 2,
+                          color: colorScheme.primary,
+                        ),
+                        items: getAvailableHalls().map((String hall) {
+                          final room = getHallByName(hall);
+                          return DropdownMenuItem<String>(
+                            value: hall,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  hall,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                room.location,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                if (room != null)
+                                  Text(
+                                    room.location,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontSize: 11,
+                                      color: colorScheme.onSurface.withOpacity(0.7),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newHall) {
+                          setState(() {
+                            _selectedHall = newHall;
+                            // Update room ID when hall changes
+                            if (newHall != null) {
+                              final selectedRoom = getHallByName(newHall);
+                              _selectedRoomId = selectedRoom?.id;
+                            } else {
+                              _selectedRoomId = null;
+                            }
+                          });
+                        },
                       ),
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedRoomId = selected ? room.id : null;
-                        });
-                      },
-                      selectedColor: colorScheme.secondaryContainer,
-                      checkmarkColor: colorScheme.onSecondaryContainer,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      side: BorderSide(
-                        color: isSelected
-                            ? colorScheme.primary
-                            : colorScheme.outline.withOpacity(0.3),
-                        width: isSelected ? 2 : 1,
-                      ),
-                    );
-                  }).toList(),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -181,26 +258,30 @@ class _LaundryPageState extends State<LaundryPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: SegmentedButton<_MachineTypeFilter>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: _MachineTypeFilter.all,
-                    label: Text('All'),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('All'),
+                    ),
                     icon: Icon(Icons.grid_view, size: 18),
                   ),
                   ButtonSegment(
                     value: _MachineTypeFilter.washers,
-                    label: Text('Washers'),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Washers'),
+                    ),
                     icon: Icon(Icons.water_drop, size: 18),
                   ),
                   ButtonSegment(
                     value: _MachineTypeFilter.dryers,
-                    label: Text('Dryers'),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Dryers'),
+                    ),
                     icon: Icon(Icons.air, size: 18),
-                  ),
-                  ButtonSegment(
-                    value: _MachineTypeFilter.free,
-                    label: Text('Free'),
-                    icon: Icon(Icons.check_circle, size: 18),
                   ),
                 ],
                 selected: {_machineTypeFilter},
@@ -304,13 +385,6 @@ class _MachineStackGrid extends StatelessWidget {
         // Show all stacks (all stacks have dryers)
         // This filter is for user preference/UI emphasis
         break;
-      case _MachineTypeFilter.free:
-        // Show only stacks with at least one free machine
-        roomMachines = roomMachines.where((stack) {
-          return stack.washerStatus == MachineStatus.free ||
-              stack.dryerStatus == MachineStatus.free;
-        }).toList();
-        break;
     }
 
     // Apply status filters
@@ -374,7 +448,7 @@ class _MachineStackGrid extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 0.7, // Reduced from 0.75 to give more vertical space
+          childAspectRatio: 0.75, // Adjusted for better vertical space to prevent overflow
         ),
         itemCount: roomMachines.length,
         itemBuilder: (context, index) {
@@ -398,26 +472,27 @@ class _MachineStackCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      elevation: 2,
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: [
             // Stack label
             Text(
               stack.label,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                fontSize: 13,
+                fontSize: 14,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
             // Dryer (top)
-            Expanded(
+            Flexible(
+              flex: 1,
               child: _MachineWidget(
                 machineType: 'Dryer',
                 status: stack.dryerStatus,
@@ -428,7 +503,8 @@ class _MachineStackCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             // Washer (bottom)
-            Expanded(
+            Flexible(
+              flex: 1,
               child: _MachineWidget(
                 machineType: 'Washer',
                 status: stack.washerStatus,
@@ -489,15 +565,15 @@ class _MachineWidget extends StatelessWidget {
 
     return InkWell(
       onTap: () => _showMachineDetailBottomSheet(context, machineType),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: statusColor.withOpacity(0.3),
-            width: 1,
+            color: statusColor.withOpacity(0.4),
+            width: 1.5,
           ),
         ),
         child: Column(
@@ -507,24 +583,23 @@ class _MachineWidget extends StatelessWidget {
             // Machine icon
             Icon(
               icon,
-              size: 18,
+              size: 20,
               color: statusColor,
             ),
             const SizedBox(height: 2),
             // Machine type
-            Flexible(
-              child: Text(
-                machineType,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 10,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
+            Text(
+              machineType,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 10,
+                height: 1.1,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 1),
+            const SizedBox(height: 2),
             // Status badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -536,7 +611,7 @@ class _MachineWidget extends StatelessWidget {
                 statusText,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: Colors.white,
-                  fontSize: 8,
+                  fontSize: 9,
                   fontWeight: FontWeight.bold,
                   height: 1.0,
                 ),
@@ -771,12 +846,41 @@ class _MachineDetailBottomSheetState
               ),
             ),
           const SizedBox(height: 24),
-          // Notification buttons
+          // Booking and notification buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                if (widget.status != MachineStatus.free)
+                // Booking section for available machines
+                if (widget.status == MachineStatus.free) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _handleBookMachine(context),
+                      icon: const Icon(Icons.schedule),
+                      label: const Text('Book This Machine'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _handleNotifyWhenFree(context),
+                      icon: const Icon(Icons.notifications_outlined),
+                      label: const Text('Get Notified Instead'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
+                // Notification options for busy machines
+                if (widget.status != MachineStatus.free) ...[
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -788,21 +892,6 @@ class _MachineDetailBottomSheetState
                       ),
                     ),
                   ),
-                if (widget.status == MachineStatus.free)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _handleNotifyWhenFree(context),
-                      icon: const Icon(Icons.notifications_active),
-                      label: const Text('Machine is Available'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ),
-                if (widget.status != MachineStatus.free) ...[
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
@@ -921,6 +1010,368 @@ class _MachineDetailBottomSheetState
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  void _handleBookMachine(BuildContext context) {
+    Navigator.of(context).pop(); // Close current bottom sheet
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _BookingTimeSlotBottomSheet(
+        stack: widget.stack,
+        machineType: widget.machineType,
+      ),
+    );
+  }
+}
+
+/// Booking Time Slot Selection Bottom Sheet
+class _BookingTimeSlotBottomSheet extends StatefulWidget {
+  final MachineStack stack;
+  final String machineType;
+
+  const _BookingTimeSlotBottomSheet({
+    required this.stack,
+    required this.machineType,
+  });
+
+  @override
+  State<_BookingTimeSlotBottomSheet> createState() =>
+      _BookingTimeSlotBottomSheetState();
+}
+
+class _BookingTimeSlotBottomSheetState
+    extends State<_BookingTimeSlotBottomSheet> {
+  final LaundryBookingManager _bookingManager = LaundryBookingManager();
+  DateTime _selectedDate = DateTime.now();
+  TimeSlot? _selectedTimeSlot;
+  List<TimeSlot> _timeSlots = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTimeSlots();
+  }
+
+  void _loadTimeSlots() {
+    final slots = _bookingManager.getAvailableTimeSlots(
+      widget.stack.id,
+      widget.machineType,
+      _selectedDate,
+    );
+    setState(() {
+      _timeSlots = slots;
+      _selectedTimeSlot = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Find room for location
+    final room = halls.firstWhere(
+      (r) => r.id == widget.stack.roomId,
+      orElse: () => halls.first,
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurface.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Book ${widget.stack.label} - ${widget.machineType}',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  room.name,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Date selector
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Date',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    // Today
+                    _DateChip(
+                      date: DateTime.now(),
+                      label: 'Today',
+                      isSelected: _isSameDay(_selectedDate, DateTime.now()),
+                      onTap: () {
+                        setState(() {
+                          _selectedDate = DateTime.now();
+                        });
+                        _loadTimeSlots();
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    // Tomorrow
+                    _DateChip(
+                      date: DateTime.now().add(const Duration(days: 1)),
+                      label: 'Tomorrow',
+                      isSelected: _isSameDay(
+                        _selectedDate,
+                        DateTime.now().add(const Duration(days: 1)),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _selectedDate = DateTime.now().add(const Duration(days: 1));
+                        });
+                        _loadTimeSlots();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Time slots
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Time Slot',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+          
+          // Available time slots (scrollable)
+          Container(
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _timeSlots.map((slot) {
+                  if (!slot.isAvailable) return const SizedBox.shrink();
+                  
+                  final isSelected = _selectedTimeSlot == slot;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedTimeSlot = slot;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? colorScheme.primaryContainer
+                            : colorScheme.surface,
+                        border: Border.all(
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.outline.withOpacity(0.5),
+                          width: isSelected ? 2 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        slot.timeRangeText,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: isSelected
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurface,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 20),
+
+          // Book button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _selectedTimeSlot != null
+                    ? () => _confirmBooking(context)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  _selectedTimeSlot != null
+                      ? 'Book for ${_selectedTimeSlot!.timeRangeText}'
+                      : 'Select a time slot to book',
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+  void _confirmBooking(BuildContext context) {
+    if (_selectedTimeSlot == null) return;
+
+    final room = halls.firstWhere(
+      (r) => r.id == widget.stack.roomId,
+      orElse: () => halls.first,
+    );
+
+    final booking = LaundryBooking(
+      id: '${widget.stack.id}-${widget.machineType}-${DateTime.now().millisecondsSinceEpoch}',
+      stackId: widget.stack.id,
+      stackLabel: widget.stack.label,
+      roomId: widget.stack.roomId,
+      roomName: room.name,
+      machineType: widget.machineType,
+      startTime: _selectedTimeSlot!.start,
+      endTime: _selectedTimeSlot!.end,
+      status: BookingStatus.upcoming,
+      userId: 'demo_user',
+      createdAt: DateTime.now(),
+    );
+
+    _bookingManager.addBooking(booking);
+
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Booking confirmed for ${widget.machineType} at ${_selectedTimeSlot!.timeRangeText}',
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+}
+
+/// Date selection chip widget
+class _DateChip extends StatelessWidget {
+  final DateTime date;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _DateChip({
+    required this.date,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? colorScheme.primaryContainer
+              : colorScheme.surface,
+          border: Border.all(
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.outline.withOpacity(0.5),
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: isSelected
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSurface,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );

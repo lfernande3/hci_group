@@ -185,6 +185,42 @@ List<Event> allEvents = [...]; // from CRESDA, clubs, curated
 
 ---
 
+### 4.5 **Dorm Services** – A/C & Visitor Management
+
+**Goal:** Provide residents with direct control over room utilities and streamline guest registration.
+
+#### 4.5.1 User Stories
+| As a… | I want to… | So that… |
+|-------|------------|----------|
+| Dorm Resident | See my A/C balance and usage on my phone | I can manage my spending and avoid running out of credit unexpectedly |
+| Dorm Resident | Top up my A/C credit via Apple Pay/Google Wallet | I don't have to use a physical top-up kiosk |
+| Dorm Resident | Use my student card to verify my identity for a visitor's registration | The process is faster and more secure than waiting for an OTP |
+
+#### 4.5.2 UI Components & Flow
+**A/C Management:**
+- **A/C Balance Card**: Displays real-time balance with color-coded status (Green, Yellow, Red) and last-updated timestamp.
+- **Usage History View**: An hourly bar chart visualizing recent A/C consumption patterns.
+- **Top-Up Flow**:
+  1. Tap "Top-Up" button on the A/C card.
+  2. A modal appears with pre-set amounts (€5, €10, €20).
+  3. User selects an amount and confirms via a mock Apple Pay / Google Wallet interface.
+  4. Balance is instantly updated on the UI.
+
+**Visitor Registration:**
+- **NFC Tap to Verify**:
+  1. Visitor initiates registration on their device.
+  2. The app prompts the visitor to have the student host tap their ID card to the phone's NFC reader.
+  3. A success animation and message confirm the host's identity has been verified.
+
+#### 4.5.3 Demo Data
+`lib/data/demo/dorm_services_data.dart`
+```dart
+Map<String, dynamic> acDetails; // balance, List<ACUsageHour> history
+bool mockNfcValidation(studentId);
+```
+
+---
+
 ## 5. Technical Requirements  
 
 | Requirement | Specification |  

@@ -54,11 +54,51 @@ const List<Room> studyRooms = [
     type: RoomType.study,
   ),
   Room(
+    id: 'SR-LIB-103',
+    name: 'Study Room 103',
+    location: 'Library 1/F',
+    capacity: 4,
+    tags: ['Whiteboard', 'Quiet'],
+    type: RoomType.study,
+  ),
+  Room(
     id: 'SR-LIB-201',
     name: 'Study Room 201',
     location: 'Library 2/F',
     capacity: 8,
     tags: ['Group', 'Power'],
+    type: RoomType.study,
+  ),
+  Room(
+    id: 'SR-LIB-202',
+    name: 'Study Room 202',
+    location: 'Library 2/F',
+    capacity: 6,
+    tags: ['Display', 'HDMI', 'Whiteboard'],
+    type: RoomType.study,
+  ),
+  Room(
+    id: 'SR-LIB-203',
+    name: 'Study Room 203',
+    location: 'Library 2/F',
+    capacity: 4,
+    tags: ['Quiet', 'Power'],
+    type: RoomType.study,
+  ),
+  Room(
+    id: 'SR-LIB-301',
+    name: 'Study Room 301',
+    location: 'Library 3/F',
+    capacity: 10,
+    tags: ['Group', 'Display', 'HDMI', 'Whiteboard'],
+    type: RoomType.study,
+  ),
+  Room(
+    id: 'SR-LIB-302',
+    name: 'Study Room 302',
+    location: 'Library 3/F',
+    capacity: 6,
+    tags: ['Quiet', 'Power'],
     type: RoomType.study,
   ),
 ];
@@ -73,6 +113,14 @@ const List<Room> classroomRooms = [
     type: RoomType.classroom,
   ),
   Room(
+    id: 'CR-AC2-211',
+    name: 'AC2-211',
+    location: 'AC2 2/F',
+    capacity: 20,
+    tags: ['Projector', 'Whiteboard', 'AV'],
+    type: RoomType.classroom,
+  ),
+  Room(
     id: 'CR-AC2-311',
     name: 'AC2-311',
     location: 'AC2 3/F',
@@ -81,11 +129,43 @@ const List<Room> classroomRooms = [
     type: RoomType.classroom,
   ),
   Room(
+    id: 'CR-AC2-312',
+    name: 'AC2-312',
+    location: 'AC2 3/F',
+    capacity: 28,
+    tags: ['Projector', 'Whiteboard', 'Mic'],
+    type: RoomType.classroom,
+  ),
+  Room(
     id: 'CR-YEUNG-201',
     name: 'YEUNG-201',
     location: 'Yeung 2/F',
     capacity: 40,
     tags: ['Lecture', 'Mic'],
+    type: RoomType.classroom,
+  ),
+  Room(
+    id: 'CR-YEUNG-202',
+    name: 'YEUNG-202',
+    location: 'Yeung 2/F',
+    capacity: 35,
+    tags: ['Projector', 'Whiteboard', 'AV'],
+    type: RoomType.classroom,
+  ),
+  Room(
+    id: 'CR-AC1-101',
+    name: 'AC1-101',
+    location: 'AC1 1/F',
+    capacity: 50,
+    tags: ['Lecture', 'Mic', 'Projector'],
+    type: RoomType.classroom,
+  ),
+  Room(
+    id: 'CR-AC3-205',
+    name: 'AC3-205',
+    location: 'AC3 2/F',
+    capacity: 30,
+    tags: ['AV', 'HDMI', 'Whiteboard'],
     type: RoomType.classroom,
   ),
 ];
@@ -100,6 +180,14 @@ const List<Room> sportsRooms = [
     type: RoomType.sports,
   ),
   Room(
+    id: 'SP-GYM-B',
+    name: 'Gym Court B',
+    location: 'Sports Hall',
+    capacity: 10,
+    tags: ['Basketball'],
+    type: RoomType.sports,
+  ),
+  Room(
     id: 'SP-POOL-L1',
     name: 'Pool Lane 1',
     location: 'Swimming Pool',
@@ -108,11 +196,59 @@ const List<Room> sportsRooms = [
     type: RoomType.sports,
   ),
   Room(
+    id: 'SP-POOL-L2',
+    name: 'Pool Lane 2',
+    location: 'Swimming Pool',
+    capacity: 1,
+    tags: ['Swimming'],
+    type: RoomType.sports,
+  ),
+  Room(
+    id: 'SP-POOL-L3',
+    name: 'Pool Lane 3',
+    location: 'Swimming Pool',
+    capacity: 1,
+    tags: ['Swimming'],
+    type: RoomType.sports,
+  ),
+  Room(
+    id: 'SP-BADM-1',
+    name: 'Badminton Court 1',
+    location: 'Sports Hall',
+    capacity: 4,
+    tags: ['Badminton'],
+    type: RoomType.sports,
+  ),
+  Room(
     id: 'SP-BADM-2',
     name: 'Badminton Court 2',
     location: 'Sports Hall',
     capacity: 4,
     tags: ['Badminton'],
+    type: RoomType.sports,
+  ),
+  Room(
+    id: 'SP-BADM-3',
+    name: 'Badminton Court 3',
+    location: 'Sports Hall',
+    capacity: 4,
+    tags: ['Badminton'],
+    type: RoomType.sports,
+  ),
+  Room(
+    id: 'SP-TT-1',
+    name: 'Table Tennis Table 1',
+    location: 'Sports Hall',
+    capacity: 2,
+    tags: ['Table Tennis'],
+    type: RoomType.sports,
+  ),
+  Room(
+    id: 'SP-TT-2',
+    name: 'Table Tennis Table 2',
+    location: 'Sports Hall',
+    capacity: 2,
+    tags: ['Table Tennis'],
     type: RoomType.sports,
   ),
 ];
@@ -127,6 +263,14 @@ const List<Room> musicRooms = [
     type: RoomType.music,
   ),
   Room(
+    id: 'MU-RM-B',
+    name: 'Music Room B',
+    location: 'Creative Media Centre',
+    capacity: 2,
+    tags: ['Acoustic', 'Guitar'],
+    type: RoomType.music,
+  ),
+  Room(
     id: 'MU-PIANO-1',
     name: 'Piano Room 1',
     location: 'Cultural Centre',
@@ -135,11 +279,35 @@ const List<Room> musicRooms = [
     type: RoomType.music,
   ),
   Room(
+    id: 'MU-PIANO-2',
+    name: 'Piano Room 2',
+    location: 'Cultural Centre',
+    capacity: 1,
+    tags: ['Piano'],
+    type: RoomType.music,
+  ),
+  Room(
+    id: 'MU-PRAC-A',
+    name: 'Practice Room A',
+    location: 'Creative Media Centre',
+    capacity: 1,
+    tags: ['Soundproof'],
+    type: RoomType.music,
+  ),
+  Room(
     id: 'MU-PRAC-B',
     name: 'Practice Room B',
     location: 'Creative Media Centre',
     capacity: 1,
     tags: ['Soundproof'],
+    type: RoomType.music,
+  ),
+  Room(
+    id: 'MU-PRAC-C',
+    name: 'Practice Room C',
+    location: 'Creative Media Centre',
+    capacity: 1,
+    tags: ['Soundproof', 'Drum Kit'],
     type: RoomType.music,
   ),
 ];
@@ -191,11 +359,12 @@ final Map<DateTime, List<BookingSlot>> availabilityMatrix = (() {
     final List<BookingSlot> result = [];
     for (final room in allRooms) {
       // Vary booked pattern per room type for visual variety
+      // More realistic booking patterns with more slots booked
       final Set<int> booked = switch (room.type) {
-        RoomType.study => {3, 4, 10, 11, 18}, // midday busy
-        RoomType.classroom => {0, 1, 12, 13, 20},
-        RoomType.sports => {6, 7, 8, 22, 23},
-        RoomType.music => {2, 5, 9, 14, 17, 21},
+        RoomType.study => {3, 4, 5, 10, 11, 12, 15, 16, 18, 19}, // midday and afternoon busy
+        RoomType.classroom => {0, 1, 2, 12, 13, 14, 15, 20, 21, 22}, // morning and afternoon classes
+        RoomType.sports => {6, 7, 8, 9, 10, 17, 18, 19, 22, 23}, // early morning and evening
+        RoomType.music => {2, 5, 9, 10, 11, 14, 15, 17, 18, 21, 22}, // scattered throughout day
       };
       result.addAll(_generateSlotsForRoom(
         day: day,

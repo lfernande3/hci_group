@@ -210,6 +210,20 @@ class NavbarItem extends Equatable {
         route: '/events',
       );
 
+  factory NavbarItem.acManagement() => const NavbarItem(
+        id: 'ac_management',
+        label: 'A/C Management',
+        icon: Icons.ac_unit,
+        route: '/ac-management',
+      );
+
+  factory NavbarItem.visitorRegistration() => const NavbarItem(
+        id: 'visitor_registration',
+        label: 'Visitor',
+        icon: Icons.person_add,
+        route: '/visitor-registration',
+      );
+
   /// Copy with new values
   NavbarItem copyWith({
     String? id,

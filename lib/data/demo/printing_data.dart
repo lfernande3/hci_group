@@ -31,23 +31,41 @@ class ReleaseInstruction {
 // --- Queues per building ------------------------------------------------------
 
 final Map<String, BuildingQueue> queues = {
-  'AC2': const BuildingQueue(
+  'AC2': BuildingQueue(
     buildingId: 'AC2',
     buildingName: 'Academic 2 (AC2)',
     waitingJobs: 4,
     isOnline: true,
   ),
-  'CMC': const BuildingQueue(
+  'CMC': BuildingQueue(
     buildingId: 'CMC',
     buildingName: 'Creative Media Centre (CMC)',
     waitingJobs: 2,
     isOnline: true,
   ),
-  'LIB': const BuildingQueue(
+  'LIB': BuildingQueue(
     buildingId: 'LIB',
     buildingName: 'Library',
     waitingJobs: 7,
     isOnline: false, // offline to demo Wi‑Fi banner
+  ),
+  'AC1': BuildingQueue(
+    buildingId: 'AC1',
+    buildingName: 'Academic 1 (AC1)',
+    waitingJobs: 3,
+    isOnline: true,
+  ),
+  'AC3': BuildingQueue(
+    buildingId: 'AC3',
+    buildingName: 'Academic 3 (AC3)',
+    waitingJobs: 5,
+    isOnline: true,
+  ),
+  'YEUNG': BuildingQueue(
+    buildingId: 'YEUNG',
+    buildingName: 'Yeung Kin Man Academic Building',
+    waitingJobs: 1,
+    isOnline: true,
   ),
 };
 
@@ -142,6 +160,105 @@ const List<ReleaseInstruction> instructionsPerBuilding = [
     steps: [
       'Connect to CityU Wi‑Fi',
       'Library Color printer',
+      'Select Color → confirm payment',
+      'Collect pages',
+    ],
+  ),
+  // AC1 instructions
+  ReleaseInstruction(
+    buildingId: 'AC1',
+    type: PrintType.freeBW,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'Go to AC1 printer area (1/F)',
+      'Tap Free Print terminal',
+      'Enter Job ID and CityU number',
+      'Collect pages from output tray',
+    ],
+  ),
+  ReleaseInstruction(
+    buildingId: 'AC1',
+    type: PrintType.chargedBW,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'AC1 printer area (1/F)',
+      'Select Charged B/W on terminal',
+      'Confirm Octopus payment',
+      'Release job and collect',
+    ],
+  ),
+  ReleaseInstruction(
+    buildingId: 'AC1',
+    type: PrintType.chargedColor,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'AC1 Color printer (room 105)',
+      'Select Charged Color',
+      'Confirm payment',
+      'Collect prints',
+    ],
+  ),
+  // AC3 instructions
+  ReleaseInstruction(
+    buildingId: 'AC3',
+    type: PrintType.freeBW,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'AC3 Library printer cluster (2/F)',
+      'Free Print terminal',
+      'Enter Job ID → print',
+    ],
+  ),
+  ReleaseInstruction(
+    buildingId: 'AC3',
+    type: PrintType.chargedBW,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'AC3 printer cluster (2/F)',
+      'Select Charged B/W',
+      'Confirm payment at terminal',
+      'Release job',
+    ],
+  ),
+  ReleaseInstruction(
+    buildingId: 'AC3',
+    type: PrintType.chargedColor,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'AC3 Color printer (room 201)',
+      'Select Color → confirm payment',
+      'Collect prints',
+    ],
+  ),
+  // YEUNG instructions
+  ReleaseInstruction(
+    buildingId: 'YEUNG',
+    type: PrintType.freeBW,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'Yeung Building printer (1/F)',
+      'Free Print terminal',
+      'Enter Job ID and CityU number',
+      'Collect from tray',
+    ],
+  ),
+  ReleaseInstruction(
+    buildingId: 'YEUNG',
+    type: PrintType.chargedBW,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'Yeung Building printer (1/F)',
+      'Select Charged B/W',
+      'Confirm Octopus payment',
+      'Release and collect',
+    ],
+  ),
+  ReleaseInstruction(
+    buildingId: 'YEUNG',
+    type: PrintType.chargedColor,
+    steps: [
+      'Connect to CityU Wi‑Fi',
+      'Yeung Color printer (room 102)',
       'Select Color → confirm payment',
       'Collect pages',
     ],

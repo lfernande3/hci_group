@@ -21,6 +21,8 @@ import '../../features/events/presentation/pages/events_page.dart';
 import '../../features/events/presentation/pages/event_detail_page.dart';
 import '../../data/demo/events_data.dart' show allEvents, Event;
 import '../../features/chatbot/presentation/pages/chatbot_page.dart';
+import '../../features/dorm/presentation/pages/ac_management_page.dart';
+import '../../features/dorm/presentation/pages/visitor_registration_page.dart';
 
 // Feature imports - providers
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -214,6 +216,17 @@ class AppRouter {
                 },
               ),
             ],
+          ),
+          // Dorm Services routes (Week 2 - T-106b)
+          GoRoute(
+            path: RouteConstants.acManagement,
+            name: 'ac-management',
+            builder: (context, state) => const ACManagementPage(),
+          ),
+          GoRoute(
+            path: RouteConstants.visitorRegistration,
+            name: 'visitor-registration',
+            builder: (context, state) => const VisitorRegistrationPage(),
           ),
         ],
       ),

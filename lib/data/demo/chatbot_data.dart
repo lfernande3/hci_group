@@ -101,21 +101,69 @@ class ChatbotData {
         timestamp: DateTime.now(),
         quickReplies: ['Study Rooms', 'Print Services', 'Library Hours'],
       );
-    } else if (lowerMessage.contains('cafeteria') || lowerMessage.contains('food') || lowerMessage.contains('eat')) {
+    } else if (lowerMessage.contains('cafeteria') || lowerMessage.contains('food') || lowerMessage.contains('eat') || lowerMessage.contains('dining')) {
       return ChatMessage(
         id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
-        text: 'There are several dining options on campus: The Canteen (AC1), Cafe (AC2), and Food Court (AC3). All are open Monday to Friday from 7:30 AM to 8:00 PM.',
+        text: 'There are several dining options on campus: The Canteen (AC1), Cafe (AC2), and Food Court (AC3). All are open Monday to Friday from 7:30 AM to 8:00 PM. The Canteen offers Chinese and Western meals, while the Cafe has coffee, sandwiches, and light snacks.',
         isUser: false,
         timestamp: DateTime.now(),
         quickReplies: ['Menu', 'Hours', 'Location'],
       );
-    } else if (lowerMessage.contains('help') || lowerMessage.contains('support')) {
+    } else if (lowerMessage.contains('print') || lowerMessage.contains('printing') || lowerMessage.contains('printer')) {
       return ChatMessage(
         id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
-        text: 'I\'m here to help! I can assist with class schedules, campus services, library information, and general questions about CityUHK. What do you need help with?',
+        text: 'You can print documents from the Print section in the app. Choose your building (AC2, CMC, or Library), select print type (Free B/W, Charged B/W, or Charged Color), and follow the release instructions. Make sure you\'re connected to CityU Wi-Fi!',
         isUser: false,
         timestamp: DateTime.now(),
-        quickReplies: ['Class Schedule', 'Campus Services', 'Library Help'],
+        quickReplies: ['Print Locations', 'Print Types', 'Wi-Fi Help'],
+      );
+    } else if (lowerMessage.contains('book') || lowerMessage.contains('booking') || lowerMessage.contains('reserve')) {
+      return ChatMessage(
+        id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'You can book study rooms, classrooms, sports facilities, and music rooms from the Booking section. Just select the category, choose a room, and pick an available time slot. Bookings are available up to 7 days in advance.',
+        isUser: false,
+        timestamp: DateTime.now(),
+        quickReplies: ['Study Rooms', 'Sports Facilities', 'How to Book'],
+      );
+    } else if (lowerMessage.contains('laundry') || lowerMessage.contains('washer') || lowerMessage.contains('dryer')) {
+      return ChatMessage(
+        id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'Check the Laundry Management section to see real-time status of washers and dryers in your hall. You can filter by machine type, book available machines, or set alerts for when machines become free. Each stack has a dryer on top and washer below.',
+        isUser: false,
+        timestamp: DateTime.now(),
+        quickReplies: ['Laundry Status', 'How to Book', 'Set Alert'],
+      );
+    } else if (lowerMessage.contains('event') || lowerMessage.contains('activity') || lowerMessage.contains('workshop')) {
+      return ChatMessage(
+        id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'Browse upcoming events in the Events section! You\'ll find academic workshops, sports competitions, cultural activities, and more. Events are organized by CRESDA, student clubs, and departments. You can filter by category or search for specific events.',
+        isUser: false,
+        timestamp: DateTime.now(),
+        quickReplies: ['View Events', 'Academic Events', 'Sports Events'],
+      );
+    } else if (lowerMessage.contains('wifi') || lowerMessage.contains('wi-fi') || lowerMessage.contains('network')) {
+      return ChatMessage(
+        id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'Connect to "CityU" Wi-Fi network. Your CityU ID and password are required. For printing services, you must be on campus Wi-Fi. If you\'re having connection issues, try forgetting the network and reconnecting, or contact IT Support.',
+        isUser: false,
+        timestamp: DateTime.now(),
+        quickReplies: ['Wi-Fi Setup', 'IT Support', 'Print Help'],
+      );
+    } else if (lowerMessage.contains('help') || lowerMessage.contains('support') || lowerMessage.contains('question')) {
+      return ChatMessage(
+        id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'I\'m here to help! I can assist with class schedules, campus services, library information, booking rooms, printing, laundry management, events, and general questions about CityUHK. What do you need help with?',
+        isUser: false,
+        timestamp: DateTime.now(),
+        quickReplies: ['Class Schedule', 'Campus Services', 'Library Help', 'Booking Help'],
+      );
+    } else if (lowerMessage.contains('id') || lowerMessage.contains('card') || lowerMessage.contains('student id')) {
+      return ChatMessage(
+        id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'Your CityU ID card can be accessed in the CityU ID section. You can view your QR code for building access, library services, and more. Make sure to keep your ID card with you on campus.',
+        isUser: false,
+        timestamp: DateTime.now(),
+        quickReplies: ['View ID', 'QR Code', 'Access Help'],
       );
     } else {
       return ChatMessage(
@@ -123,7 +171,7 @@ class ChatbotData {
         text: 'I understand you\'re asking about "$userMessage". Let me help you with that. You can check the relevant sections in the app, or I can provide more specific information. What would you like to know?',
         isUser: false,
         timestamp: DateTime.now(),
-        quickReplies: ['Class Schedule', 'Campus Services', 'Library Help'],
+        quickReplies: ['Class Schedule', 'Campus Services', 'Library Help', 'Booking Help'],
       );
     }
   }

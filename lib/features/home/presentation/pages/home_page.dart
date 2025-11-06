@@ -207,6 +207,20 @@ class _NewFeaturesSection extends StatelessWidget {
         'color': AppColors.info,
         'route': RouteConstants.events,
       },
+      {
+        'title': 'A/C Management',
+        'subtitle': 'Monitor & top up A/C credit',
+        'icon': Icons.ac_unit,
+        'color': AppColors.primary,
+        'route': RouteConstants.acManagement,
+      },
+      {
+        'title': 'Visitor Registration',
+        'subtitle': 'Register guests with NFC',
+        'icon': Icons.person_add,
+        'color': AppColors.secondaryOrange,
+        'route': RouteConstants.visitorRegistration,
+      },
     ];
 
     return Column(

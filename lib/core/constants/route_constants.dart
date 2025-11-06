@@ -33,4 +33,8 @@ class RouteConstants {
   static const String laundry = '/laundry';
   static const String print = '/print';
   static const String events = '/events';
+  
+  // Dorm Services routes (Week 2)
+  static const String acManagement = '/ac-management';
+  static const String visitorRegistration = '/visitor-registration';
 }

@@ -71,6 +71,41 @@ It is feasible because it requires only basic data integration and standard inte
 It is extensible because future functions such as personalized recommendations or push notifications can be added later without changing the core structure.
 It is testable because each function, including filtering, searching, and registration, has measurable acceptance criteria that can be validated through testing.
 
+New Feature:
 
+1.Visitor registration section:
+-NFC Tap to Verify Student Identity
+Description: When a visitor registers at the lobby, instead of waiting for an OTP code from the student, the visitor can ask the host student to tap their CityU Student ID card on the visitor’s phone. The app reads encrypted ID data via NFC and sends it to the dorm server for validation.
+Functionality:
+
+The phone must have NFC capability.
+
+Upon tap, the system automatically cross-checks the SID with the registered student database.
+
+Once confirmed, verification status is updated instantly.
+2.A/C management section:
+-Real-Time A/C Balance Display Linked to the Student’s Room
+Description: Displays the current A/C credit balance retrieved directly from the dorm’s central energy system, linked to the student’s room number.
+Purpose: To give users immediate visibility of their remaining balance before it runs out.
+
+Functionality:
+
+The balance auto-updates through periodic sync (e.g., every 10 minutes).
+
+Color-coded indicators (green = sufficient, yellow = low, red = critical) help students take quick action.
+-Usage History (Hourly Breakdown)
+Description: Visualizes the student’s recent A/C usage in an hourly chart or timeline.
+Functionality:
+
+The app records hourly consumption data.
+
+Students can see average daily usage patterns and estimate remaining hours of cooling.
+-Online Top-Up via Apple Pay or Google Wallet
+Description: Integrates a secure, cashless payment gateway allowing users to top up their A/C credit directly from their phone.
+Functionality:
+
+Accepts major digital wallets and cards.
+
+Issues an instant receipt and updates balance immediately.
 
 
