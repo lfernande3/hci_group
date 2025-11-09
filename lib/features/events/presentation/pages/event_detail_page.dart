@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../data/demo/events_data.dart';
+import '../../../../core/utils/date_time_formatter.dart';
+import '../../../../core/constants/ui_constants.dart';
 
 /// Event Detail View page showing full event information
 class EventDetailPage extends StatelessWidget {
@@ -255,29 +257,6 @@ class _EventInfoCard extends StatelessWidget {
     required this.colorScheme,
   });
 
-  String _formatDateTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final eventDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-    
-    if (eventDate == today) {
-      return 'Today, ${_formatTime(dateTime)}';
-    } else if (eventDate == today.add(const Duration(days: 1))) {
-      return 'Tomorrow, ${_formatTime(dateTime)}';
-    } else {
-      final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      final weekday = weekdays[dateTime.weekday - 1];
-      return '$weekday, ${dateTime.day}/${dateTime.month}/${dateTime.year} ${_formatTime(dateTime)}';
-    }
-  }
-
-  String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return '$displayHour:$minute $period';
-  }
 
   String _formatDuration(DateTime start, DateTime end) {
     final duration = end.difference(start);
@@ -314,7 +293,7 @@ class _EventInfoCard extends StatelessWidget {
             _InfoRow(
               icon: Icons.access_time,
               label: 'Start Time',
-              value: _formatDateTime(event.startTime),
+              value: DateTimeFormatter.formatDateTimeSmart(event.startTime),
               theme: theme,
               colorScheme: colorScheme,
             ),
@@ -324,7 +303,7 @@ class _EventInfoCard extends StatelessWidget {
             _InfoRow(
               icon: Icons.access_time_filled,
               label: 'End Time',
-              value: _formatDateTime(event.endTime),
+              value: DateTimeFormatter.formatDateTimeSmart(event.endTime),
               theme: theme,
               colorScheme: colorScheme,
             ),

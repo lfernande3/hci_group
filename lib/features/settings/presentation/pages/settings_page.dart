@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/providers/theme_provider.dart';
 import '../../../navigation/presentation/providers/navigation_provider.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../navigation/domain/entities/navbar_config.dart';
+import '../../../../core/constants/route_constants.dart';
+import '../../../auth/presentation/providers/user_provider.dart';
+import '../../../onboarding/presentation/pages/help_faq_page.dart';
+import '../../../onboarding/presentation/providers/onboarding_provider.dart';
 
 /// Settings page for app configuration
 class SettingsPage extends StatelessWidget {
@@ -17,11 +22,220 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          const _AccountSection(),
+          const Divider(),
           const _ThemeSection(),
           const Divider(),
           const _NavigationSection(),
           const Divider(),
+          const _HelpSection(),
+          const Divider(),
           const _AboutSection(),
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountSection extends StatelessWidget {
+  const _AccountSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final theme = Theme.of(context);
+        final isLoggedIn = userProvider.isLoggedIn;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            // CityU gradient background - orange to burgundy (matching next event widget)
+            gradient: const LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              stops: [0.0, 0.6],
+              colors: [
+                AppColors.secondaryOrange, // Orange
+                AppColors.primary, // Burgundy
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.widgetAccent.withOpacity(0.3),
+              width: 1.5,
+            ),
+            // Subtle shadow for depth
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.widgetShadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isLoggedIn) ...[
+                // User Info
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        userProvider.user?.fullName[0].toUpperCase() ?? 'U',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userProvider.user?.fullName ?? 'Unknown',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            userProvider.user?.email ?? '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.verified_user,
+                      size: 16,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Logged in via CityU SSO',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Logout Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _showLogoutDialog(context, userProvider);
+                    },
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Log Out'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                  ),
+                ),
+              ] else ...[
+                // Login Prompt
+                Text(
+                  'Sign in to access personalized features',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Access your bookings, laundry schedules, print jobs, and more.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withOpacity(0.9),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      context.push(RouteConstants.login);
+                    },
+                    icon: const Icon(Icons.login),
+                    label: const Text('Sign In with CityU SSO'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, UserProvider userProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text(
+          'Are you sure you want to log out from your account?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              userProvider.logout();
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white),
+                      SizedBox(width: 12),
+                      Text('Successfully logged out'),
+                    ],
+                  ),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Log Out'),
+          ),
         ],
       ),
     );
@@ -86,7 +300,7 @@ class _NavigationSection extends StatelessWidget {
       builder: (context, navigationProvider, child) {
         return ExpansionTile(
           leading: const Icon(Icons.navigation, color: AppColors.primary),
-          title: const Text('Navigation'),
+          title: const Text('Edit Navbar Items'),
           subtitle: Text('${navigationProvider.items.length}/5 items configured'),
           children: [
             ListTile(
@@ -184,6 +398,49 @@ class _NavigationSection extends StatelessWidget {
   }
 }
 
+class _HelpSection extends StatelessWidget {
+  const _HelpSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      leading: const Icon(Icons.help_outline, color: AppColors.primary),
+      title: const Text('Help & FAQ'),
+      subtitle: const Text('Get help and replay tutorial'),
+      children: [
+        ListTile(
+          title: const Text('Help & FAQ'),
+          subtitle: const Text('Frequently asked questions and answers'),
+          trailing: const Icon(Icons.arrow_forward_ios),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const HelpFaqPage(),
+              ),
+            );
+          },
+        ),
+        ListTile(
+          title: const Text('Replay Tutorial'),
+          subtitle: const Text('Watch the app tutorial again'),
+          trailing: const Icon(Icons.play_circle_outline),
+          onTap: () {
+            final onboardingProvider = Provider.of<OnboardingProvider>(context, listen: false);
+            onboardingProvider.resetOnboarding();
+            context.go(RouteConstants.onboarding);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Tutorial will start now'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class _AboutSection extends StatelessWidget {
   const _AboutSection();
 
@@ -224,6 +481,11 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
   List<NavbarItem> _currentItems = [];
   List<NavbarItem> _availableItems = [];
   bool _isLoading = true;
+  
+  // Undo state tracking
+  List<NavbarItem> _originalCurrentItems = [];
+  List<NavbarItem> _originalAvailableItems = [];
+  bool _hasUnsavedChanges = false;
 
   @override
   void initState() {
@@ -244,9 +506,45 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
     _availableItems.removeWhere((available) => 
       _currentItems.any((current) => current.id == available.id));
     
+    // Save original state for undo
+    _originalCurrentItems = List.from(_currentItems);
+    _originalAvailableItems = List.from(_availableItems);
+    _hasUnsavedChanges = false;
+    
     setState(() {
       _isLoading = false;
     });
+  }
+  
+  void _markAsChanged() {
+    if (!_hasUnsavedChanges) {
+      setState(() {
+        _hasUnsavedChanges = true;
+      });
+    }
+  }
+  
+  void _undoChanges() {
+    setState(() {
+      _currentItems = List.from(_originalCurrentItems);
+      _availableItems = List.from(_originalAvailableItems);
+      _hasUnsavedChanges = false;
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.undo, color: Colors.white),
+            SizedBox(width: 8),
+            Text('Changes undone'),
+          ],
+        ),
+        backgroundColor: Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -255,6 +553,13 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
       appBar: AppBar(
         title: const Text('Customize Navigation'),
         actions: [
+          // Undo button (only show when there are unsaved changes)
+          if (_hasUnsavedChanges)
+            IconButton(
+              icon: const Icon(Icons.undo),
+              tooltip: 'Undo changes',
+              onPressed: _undoChanges,
+            ),
           TextButton(
             onPressed: _saveChanges,
             child: const Text('Save'),
@@ -313,45 +618,15 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
 
     return ReorderableListView.builder(
       itemCount: _currentItems.length,
-      onReorder: (oldIndex, newIndex) async {
-        final previousOrder = List<NavbarItem>.from(_currentItems);
+      onReorder: (oldIndex, newIndex) {
         setState(() {
           if (oldIndex < newIndex) {
             newIndex -= 1;
           }
           final item = _currentItems.removeAt(oldIndex);
           _currentItems.insert(newIndex, item);
+          _markAsChanged();
         });
-
-        // Ask for confirmation with Undo option
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Confirm Reorder?'),
-              content: const Text('Do you want to keep this new order for the navigation bar?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    // Undo changes
-                    setState(() {
-                      _currentItems = previousOrder;
-                    });
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Reorder undone')),
-                    );
-                  },
-                  child: const Text('Undo'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Confirm'),
-                ),
-              ],
-            ),
-          );
-        }
       },
       itemBuilder: (context, index) {
         final item = _currentItems[index];
@@ -430,6 +705,7 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
     setState(() {
       _currentItems.add(item);
       _availableItems.remove(item);
+      _markAsChanged();
     });
   }
 
@@ -437,6 +713,7 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
     setState(() {
       _currentItems.remove(item);
       _availableItems.add(item);
+      _markAsChanged();
     });
   }
 
@@ -449,10 +726,23 @@ class _NavbarCustomizationPageState extends State<NavbarCustomizationPage> {
     await navigationProvider.updateConfig(newConfig);
     
     if (mounted) {
+      // Update original state after saving
+      _originalCurrentItems = List.from(_currentItems);
+      _originalAvailableItems = List.from(_availableItems);
+      _hasUnsavedChanges = false;
+      
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Navigation customization saved'),
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Navigation customization saved'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }

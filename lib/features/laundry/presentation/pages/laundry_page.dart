@@ -3,6 +3,7 @@ import '../../../../data/demo/laundry_data.dart';
 import 'alert_center_page.dart';
 import '../../data/models/laundry_alert.dart';
 import '../../data/models/laundry_booking.dart';
+import '../../../../core/theme/colors.dart';
 
 /// Laundry Management page with room selector and machine status
 class LaundryPage extends StatefulWidget {
@@ -145,7 +146,7 @@ class _LaundryPageState extends State<LaundryPage> {
                         '${_alertManager.alerts.length}',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -176,24 +177,11 @@ class _LaundryPageState extends State<LaundryPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Select Hall',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
                 // Hall Dropdown
                 Row(
                   children: [
-                    Icon(
-                      Icons.local_laundry_service,
-                      size: 20,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
                     Text(
-                      'Hall:',
+                      'Select Hall:',
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -208,28 +196,13 @@ class _LaundryPageState extends State<LaundryPage> {
                           color: colorScheme.primary,
                         ),
                         items: getAvailableHalls().map((String hall) {
-                          final room = getHallByName(hall);
                           return DropdownMenuItem<String>(
                             value: hall,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  hall,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                if (room != null)
-                                  Text(
-                                    room.location,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      fontSize: 11,
-                                      color: colorScheme.onSurface.withOpacity(0.7),
-                                    ),
-                                  ),
-                              ],
+                            child: Text(
+                              hall,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           );
                         }).toList(),
@@ -256,7 +229,7 @@ class _LaundryPageState extends State<LaundryPage> {
           if (_selectedRoomId != null) ...[
             // Segmented Control for Machine Type
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: SegmentedButton<_MachineTypeFilter>(
                 segments: [
                   ButtonSegment(
@@ -314,7 +287,7 @@ class _LaundryPageState extends State<LaundryPage> {
                   ),
                   FilterChip(
                     selected: _statusFilters.contains('finishingSoon'),
-                    label: const Text('Finishing Soon'),
+                    label: const Text('Finishing'),
                     onSelected: (selected) {
                       setState(() {
                         if (selected) {
@@ -328,24 +301,81 @@ class _LaundryPageState extends State<LaundryPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
           ],
-          // Machine Stack Grid
+          // Machine Stack Grid with floating banner
           Expanded(
-            child: _selectedRoomId == null
-                ? Center(
-                    child: Text(
-                      'Please select a laundry room',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.6),
+            child: Stack(
+              children: [
+                _selectedRoomId == null
+                    ? Center(
+                        child: Text(
+                          'Please select a laundry room',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                      )
+                    : _MachineStackGrid(
+                        roomId: _selectedRoomId!,
+                        machineTypeFilter: _machineTypeFilter,
+                        statusFilters: _statusFilters,
+                      ),
+                // Floating banner at the bottom (like FloatingActionButton)
+                if (_selectedRoomId != null)
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        // CityU gradient background - orange to burgundy (matching next event widget)
+                        gradient: const LinearGradient(
+                          begin: Alignment.bottomLeft,
+                          end: Alignment.topRight,
+                          stops: [0.0, 0.6],
+                          colors: [
+                            AppColors.secondaryOrange, // Orange
+                            AppColors.primary, // Burgundy
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.widgetAccent.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                        // Subtle shadow for depth
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.widgetShadow,
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Each stack contains a washer-dryer pair. Look for the "Pair" badge when both machines are available.',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                : _MachineStackGrid(
-                    roomId: _selectedRoomId!,
-                    machineTypeFilter: _machineTypeFilter,
-                    statusFilters: _statusFilters,
                   ),
+              ],
+            ),
           ),
         ],
       ),
@@ -433,7 +463,7 @@ class _MachineStackGrid extends StatelessWidget {
             Text(
               'Try adjusting your filters',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.5),
+                color: colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
           ],
@@ -442,13 +472,13 @@ class _MachineStackGrid extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10), // Extra bottom padding for floating banner
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.75, // Adjusted for better vertical space to prevent overflow
+          crossAxisSpacing: 2,
+          mainAxisSpacing: 4,
+          childAspectRatio: 1.15,
         ),
         itemCount: roomMachines.length,
         itemBuilder: (context, index) {
@@ -475,43 +505,83 @@ class _MachineStackCard extends StatelessWidget {
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Stack label
-            Text(
-              stack.label,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+            // Stack label with pair availability indicator
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      stack.label,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  // Show "Pair Available" badge when both machines are free
+                  if (stack.washerStatus == MachineStatus.free &&
+                      stack.dryerStatus == MachineStatus.free)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.green,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            size: 12,
+                            color: Colors.green.shade700,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            'Pair',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.green.shade700,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 8),
-            // Dryer (top)
-            Flexible(
-              flex: 1,
-              child: _MachineWidget(
-                machineType: 'Dryer',
-                status: stack.dryerStatus,
-                etaMinutes: stack.dryerEtaMinutes,
-                icon: Icons.air,
-                stack: stack,
-              ),
-            ),
-            const SizedBox(height: 6),
-            // Washer (bottom)
-            Flexible(
-              flex: 1,
-              child: _MachineWidget(
-                machineType: 'Washer',
-                status: stack.washerStatus,
-                etaMinutes: stack.washerEtaMinutes,
-                icon: Icons.water_drop,
-                stack: stack,
-              ),
+            // Dryer and Washer (vertical layout - dryer on top, washer on bottom)
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _MachineWidget(
+                  machineType: 'Dryer',
+                  status: stack.dryerStatus,
+                  etaMinutes: stack.dryerEtaMinutes,
+                  icon: Icons.air,
+                  stack: stack,
+                ),
+                const SizedBox(height: 6),
+                _MachineWidget(
+                  machineType: 'Washer',
+                  status: stack.washerStatus,
+                  etaMinutes: stack.washerEtaMinutes,
+                  icon: Icons.water_drop,
+                  stack: stack,
+                ),
+              ],
             ),
           ],
         ),
@@ -558,7 +628,7 @@ class _MachineWidget extends StatelessWidget {
         break;
       case MachineStatus.finishingSoon:
         statusColor = Colors.blue;
-        statusText = 'Finishing Soon';
+        statusText = 'Finishing';
         backgroundColor = Colors.blue.withOpacity(0.1);
         break;
     }
@@ -576,64 +646,73 @@ class _MachineWidget extends StatelessWidget {
             width: 1.5,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Machine icon
-            Icon(
-              icon,
-              size: 20,
-              color: statusColor,
-            ),
-            const SizedBox(height: 2),
-            // Machine type
-            Text(
-              machineType,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 10,
-                height: 1.1,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 2),
-            // Status badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              decoration: BoxDecoration(
-                color: statusColor,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                statusText,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  height: 1.0,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            // ETA countdown (compact)
-            if (etaMinutes != null && etaMinutes! > 0) ...[
-              const SizedBox(height: 1),
-              Text(
-                '~${etaMinutes}m',
-                style: theme.textTheme.bodySmall?.copyWith(
+            // Left side: Icon and machine type
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
                   color: statusColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 9,
-                  height: 1.0,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                const SizedBox(width: 6),
+                Text(
+                  machineType,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+            // Right side: Status badge and ETA
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Status badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      height: 1.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // ETA countdown (if applicable)
+                if (etaMinutes != null && etaMinutes! > 0) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    '~${etaMinutes}m',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      height: 1.0,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
       ),
@@ -681,6 +760,11 @@ class _MachineDetailBottomSheet extends StatefulWidget {
 class _MachineDetailBottomSheetState
     extends State<_MachineDetailBottomSheet> {
   int? _remainingMinutes;
+  
+  // Debounce state to prevent duplicate alert taps
+  bool _isProcessingAlert = false;
+  DateTime? _lastAlertTapTime;
+  static const Duration _debounceDuration = Duration(milliseconds: 1000);
 
   @override
   void initState() {
@@ -689,6 +773,33 @@ class _MachineDetailBottomSheetState
     // Start countdown timer if machine is in use
     if (_remainingMinutes != null && _remainingMinutes! > 0) {
       _startCountdown();
+    }
+  }
+  
+  bool _canProcessAlert() {
+    if (_isProcessingAlert) {
+      return false;
+    }
+    
+    final now = DateTime.now();
+    if (_lastAlertTapTime != null) {
+      final timeSinceLastTap = now.difference(_lastAlertTapTime!);
+      if (timeSinceLastTap < _debounceDuration) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  void _setProcessingState(bool isProcessing) {
+    if (mounted) {
+      setState(() {
+        _isProcessingAlert = isProcessing;
+        if (isProcessing) {
+          _lastAlertTapTime = DateTime.now();
+        }
+      });
     }
   }
 
@@ -730,7 +841,7 @@ class _MachineDetailBottomSheetState
         break;
       case MachineStatus.finishingSoon:
         statusColor = Colors.blue;
-        statusText = 'Finishing Soon';
+        statusText = 'Finishing';
         break;
     }
 
@@ -870,9 +981,19 @@ class _MachineDetailBottomSheetState
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () => _handleNotifyWhenFree(context),
-                      icon: const Icon(Icons.notifications_outlined),
-                      label: const Text('Get Notified Instead'),
+                      onPressed: _isProcessingAlert
+                          ? null
+                          : () => _handleNotifyWhenFree(context),
+                      icon: _isProcessingAlert
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(Icons.notifications_outlined),
+                      label: Text(_isProcessingAlert ? 'Processing...' : 'Get Notified Instead'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -884,9 +1005,20 @@ class _MachineDetailBottomSheetState
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () => _handleNotifyWhenFree(context),
-                      icon: const Icon(Icons.notifications_outlined),
-                      label: const Text('Notify When Free'),
+                      onPressed: _isProcessingAlert 
+                          ? null 
+                          : () => _handleNotifyWhenFree(context),
+                      icon: _isProcessingAlert
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Icon(Icons.notifications_outlined),
+                      label: Text(_isProcessingAlert ? 'Processing...' : 'Notify When Free'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -896,9 +1028,19 @@ class _MachineDetailBottomSheetState
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () => _handleNotifyAtEnd(context),
-                      icon: const Icon(Icons.notification_important),
-                      label: const Text('Notify At End'),
+                      onPressed: _isProcessingAlert
+                          ? null
+                          : () => _handleNotifyAtEnd(context),
+                      icon: _isProcessingAlert
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(Icons.notification_important),
+                      label: Text(_isProcessingAlert ? 'Processing...' : 'Notify At End'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -915,6 +1057,13 @@ class _MachineDetailBottomSheetState
   }
 
   void _handleNotifyWhenFree(BuildContext context) {
+    // Debounce: prevent duplicate taps
+    if (!_canProcessAlert()) {
+      return;
+    }
+    
+    _setProcessingState(true);
+    
     final room = halls.firstWhere(
       (r) => r.id == widget.stack.roomId,
       orElse: () => halls.first,
@@ -934,6 +1083,12 @@ class _MachineDetailBottomSheetState
     LaundryAlertManager().addAlert(alert);
 
     Navigator.of(context).pop();
+    
+    // Reset processing state after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _setProcessingState(false);
+    });
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -965,6 +1120,13 @@ class _MachineDetailBottomSheetState
   }
 
   void _handleNotifyAtEnd(BuildContext context) {
+    // Debounce: prevent duplicate taps
+    if (!_canProcessAlert()) {
+      return;
+    }
+    
+    _setProcessingState(true);
+    
     final room = halls.firstWhere(
       (r) => r.id == widget.stack.roomId,
       orElse: () => halls.first,
@@ -985,6 +1147,12 @@ class _MachineDetailBottomSheetState
     LaundryAlertManager().addAlert(alert);
 
     Navigator.of(context).pop();
+    
+    // Reset processing state after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _setProcessingState(false);
+    });
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(

@@ -37,4 +37,11 @@ class RouteConstants {
   // Dorm Services routes (Week 2)
   static const String acManagement = '/ac-management';
   static const String visitorRegistration = '/visitor-registration';
+  
+  // Student Life routes
+  static const String cresda = '/cresda';
+  static const String studentServices = '/student-services';
+  static const String studentFeedback = '/student-feedback';
+  static const String counsellingServices = '/counselling-services';
+  static const String myPrivileges = '/my-privileges';
 }

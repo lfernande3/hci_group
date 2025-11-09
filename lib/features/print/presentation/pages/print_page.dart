@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/demo/printing_data.dart';
+import '../../../../core/theme/colors.dart';
 
 /// Print Submission page with file upload mock
 /// Step 1: Upload → Mock file picker
@@ -20,9 +21,37 @@ class _PrintPageState extends State<PrintPage> {
   PrintType? _selectedPrintType;
   String? _jobId;
   bool _isSubmitted = false;
+  bool _isUploading = false;
+  
+  // Scroll controller and keys for auto-scrolling
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _step2Key = GlobalKey();
+  final GlobalKey _step3Key = GlobalKey();
+  final GlobalKey _step4Key = GlobalKey();
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+  
+  /// Scroll to a specific step after state update
+  void _scrollToStep(GlobalKey key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = key.currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          alignment: 0.1, // Scroll to show near top
+        );
+      }
+    });
+  }
 
-  /// Mock file picker - simulates selecting a file
-  void _mockFilePicker() {
+  /// Mock file picker - simulates selecting a file with potential errors
+  Future<void> _mockFilePicker() async {
     // Simulate file selection with random demo files
     final demoFiles = [
       {'name': 'assignment_2024.pdf', 'size': 245678},
@@ -35,12 +64,47 @@ class _PrintPageState extends State<PrintPage> {
     final randomFile = demoFiles[
         DateTime.now().millisecondsSinceEpoch % demoFiles.length];
 
+    final wasChangingFile = _selectedFileName != null;
+    
+    // Simulate upload process with potential failure (20% chance for demo)
+    setState(() {
+      _isUploading = true;
+    });
+
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // Simulate random upload failure (20% chance)
+    final shouldFail = (DateTime.now().millisecondsSinceEpoch % 10) < 2;
+    
+    if (shouldFail) {
+      setState(() {
+        _isUploading = false;
+      });
+      
+      // Show error dialog
+      _showUploadErrorDialog();
+      return;
+    }
+
+    // Success case
     setState(() {
       _selectedFileName = randomFile['name'] as String;
       _selectedFileSize = randomFile['size'] as int;
+      _isUploading = false;
+      // Reset submission state when changing file (but keep building/print type)
+      if (wasChangingFile) {
+        _jobId = null;
+        _isSubmitted = false;
+      }
     });
+    
+    // Auto-scroll to Step 2 after file selection
+    if (!wasChangingFile) {
+      _scrollToStep(_step2Key);
+    }
 
-    // Show feedback
+    // Show success feedback
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -52,7 +116,9 @@ class _PrintPageState extends State<PrintPage> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'File selected: ${randomFile['name']}',
+                wasChangingFile 
+                    ? 'File changed to: ${randomFile['name']}'
+                    : 'File selected: ${randomFile['name']}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
@@ -67,6 +133,120 @@ class _PrintPageState extends State<PrintPage> {
     );
   }
 
+  /// Show contextual error dialog for failed uploads
+  void _showUploadErrorDialog() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.error_outline,
+                color: colorScheme.error,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Upload Failed'),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Unable to upload the selected file.',
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Possible causes:',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _ErrorCauseItem(
+                    icon: Icons.wifi_off,
+                    text: 'Network connection issue',
+                    colorScheme: colorScheme,
+                    theme: theme,
+                  ),
+                  const SizedBox(height: 4),
+                  _ErrorCauseItem(
+                    icon: Icons.storage,
+                    text: 'File size too large',
+                    colorScheme: colorScheme,
+                    theme: theme,
+                  ),
+                  const SizedBox(height: 4),
+                  _ErrorCauseItem(
+                    icon: Icons.lock_outline,
+                    text: 'File access permission denied',
+                    colorScheme: colorScheme,
+                    theme: theme,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _mockFilePicker(); // Retry upload
+            },
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatFileSize(int bytes) {
     if (bytes < 1024) {
       return '$bytes B';
@@ -77,21 +257,60 @@ class _PrintPageState extends State<PrintPage> {
     }
   }
 
+  /// Get the current step number (1-4)
+  int _getCurrentStep() {
+    if (_isSubmitted) return 4;
+    if (_selectedPrintType != null) return 4;
+    if (_selectedBuildingId != null) return 3;
+    if (_selectedFileName != null) return 2;
+    return 1;
+  }
+
+  /// Check if submit button should be shown
+  bool _shouldShowSubmitButton() {
+    return _selectedFileName != null &&
+        _selectedBuildingId != null &&
+        _selectedPrintType != null &&
+        !_isSubmitted;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final currentStep = _getCurrentStep();
+    final showSubmitButton = _shouldShowSubmitButton();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Print Submission'),
-        // AppTheme automatically applied
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        children: [
+          // Stepper widget at the top
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              border: Border(
+                bottom: BorderSide(
+                  color: colorScheme.outline.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: _PrintStepper(
+              currentStep: currentStep,
+              theme: theme,
+              colorScheme: colorScheme,
+            ),
+          ),
+          // Scrollable content
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             // Wi-Fi Detection Banner (mock)
             if (_selectedBuildingId != null) ...[
               _WiFiDetectionBanner(
@@ -106,8 +325,27 @@ class _PrintPageState extends State<PrintPage> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.topRight,
+                  stops: [0.0, 0.6],
+                  colors: [
+                    AppColors.secondaryOrange, // Orange
+                    AppColors.primary, // Burgundy
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.widgetAccent.withOpacity(0.3),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.widgetShadow,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +354,7 @@ class _PrintPageState extends State<PrintPage> {
                     children: [
                       Icon(
                         Icons.print_outlined,
-                        color: colorScheme.primary,
+                        color: Colors.white,
                         size: 28,
                       ),
                       const SizedBox(width: 12),
@@ -125,7 +363,7 @@ class _PrintPageState extends State<PrintPage> {
                           'Step 1: Upload Document',
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -135,7 +373,7 @@ class _PrintPageState extends State<PrintPage> {
                   Text(
                     'Select a file to print. Supported formats: PDF, DOCX, PPTX, JPG, PNG',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.7),
+                      color: Colors.white.withOpacity(0.9),
                     ),
                   ),
                 ],
@@ -145,9 +383,15 @@ class _PrintPageState extends State<PrintPage> {
 
             // File upload button
             OutlinedButton.icon(
-              onPressed: _mockFilePicker,
-              icon: const Icon(Icons.upload_file),
-              label: const Text('Select File'),
+              onPressed: _isUploading ? null : _mockFilePicker,
+              icon: _isUploading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.upload_file),
+              label: Text(_isUploading ? 'Uploading...' : 'Select File'),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -211,6 +455,18 @@ class _PrintPageState extends State<PrintPage> {
                             ],
                           ),
                         ),
+                        // Change file button
+                        TextButton.icon(
+                          onPressed: _isUploading ? null : _mockFilePicker,
+                          icon: const Icon(Icons.edit, size: 18),
+                          label: const Text('Change'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
                         IconButton(
                           icon: const Icon(Icons.close),
                           onPressed: () {
@@ -226,33 +482,6 @@ class _PrintPageState extends State<PrintPage> {
                           tooltip: 'Remove file',
                         ),
                       ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Info banner
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 20,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'This is a demo file upload. No actual file is selected.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurface.withOpacity(0.7),
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -287,7 +516,7 @@ class _PrintPageState extends State<PrintPage> {
                     Text(
                       'Tap "Select File" to choose a document',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.5),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -301,10 +530,30 @@ class _PrintPageState extends State<PrintPage> {
               const SizedBox(height: 32),
               // Step 2 header
               Container(
+                key: _step2Key,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: const LinearGradient(
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                    stops: [0.0, 0.6],
+                    colors: [
+                      AppColors.secondaryOrange, // Orange
+                      AppColors.primary, // Burgundy
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.widgetAccent.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.widgetShadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +562,7 @@ class _PrintPageState extends State<PrintPage> {
                       children: [
                         Icon(
                           Icons.business,
-                          color: colorScheme.primary,
+                          color: Colors.white,
                           size: 28,
                         ),
                         const SizedBox(width: 12),
@@ -322,7 +571,7 @@ class _PrintPageState extends State<PrintPage> {
                             'Step 2: Select Building',
                             style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: colorScheme.onSurface,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -332,7 +581,7 @@ class _PrintPageState extends State<PrintPage> {
                     Text(
                       'Choose a building location. Queue count shows waiting print jobs.',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: Colors.white.withOpacity(0.9),
                       ),
                     ),
                   ],
@@ -353,6 +602,8 @@ class _PrintPageState extends State<PrintPage> {
                         _selectedBuildingId = building.buildingId;
                         _selectedPrintType = null; // Clear print type when building changes
                       });
+                      // Auto-scroll to Step 3 after building selection
+                      _scrollToStep(_step3Key);
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -491,10 +742,30 @@ class _PrintPageState extends State<PrintPage> {
                 const SizedBox(height: 32),
                 // Step 3 header
                 Container(
+                  key: _step3Key,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: const LinearGradient(
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
+                      stops: [0.0, 0.6],
+                      colors: [
+                        AppColors.secondaryOrange, // Orange
+                        AppColors.primary, // Burgundy
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.widgetAccent.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.widgetShadow,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,7 +774,7 @@ class _PrintPageState extends State<PrintPage> {
                         children: [
                           Icon(
                             Icons.print,
-                            color: colorScheme.primary,
+                            color: Colors.white,
                             size: 28,
                           ),
                           const SizedBox(width: 12),
@@ -512,7 +783,7 @@ class _PrintPageState extends State<PrintPage> {
                               'Step 3: Select Print Type',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -522,7 +793,7 @@ class _PrintPageState extends State<PrintPage> {
                       Text(
                         'Choose your print option. Free B/W is available for students.',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: Colors.white.withOpacity(0.9),
                         ),
                       ),
                     ],
@@ -542,6 +813,8 @@ class _PrintPageState extends State<PrintPage> {
                     setState(() {
                       _selectedPrintType = PrintType.freeBW;
                     });
+                    // Auto-scroll to Step 4 after print type selection
+                    _scrollToStep(_step4Key);
                   },
                   theme: theme,
                   colorScheme: colorScheme,
@@ -558,6 +831,8 @@ class _PrintPageState extends State<PrintPage> {
                     setState(() {
                       _selectedPrintType = PrintType.chargedBW;
                     });
+                    // Auto-scroll to Step 4 after print type selection
+                    _scrollToStep(_step4Key);
                   },
                   theme: theme,
                   colorScheme: colorScheme,
@@ -574,6 +849,8 @@ class _PrintPageState extends State<PrintPage> {
                     setState(() {
                       _selectedPrintType = PrintType.chargedColor;
                     });
+                    // Auto-scroll to Step 4 after print type selection
+                    _scrollToStep(_step4Key);
                   },
                   theme: theme,
                   colorScheme: colorScheme,
@@ -582,14 +859,63 @@ class _PrintPageState extends State<PrintPage> {
                 // Step 4: Review & Submit (only show if all previous steps completed)
                 if (_selectedPrintType != null) ...[
                   const SizedBox(height: 32),
-                  _ReviewAndSubmitSection(
-                    fileName: _selectedFileName!,
-                    fileSize: _selectedFileSize!,
-                    buildingId: _selectedBuildingId!,
-                    printType: _selectedPrintType!,
-                    jobId: _jobId,
-                    isSubmitted: _isSubmitted,
-                    onSubmit: () {
+                  Container(
+                    key: _step4Key,
+                    child: _ReviewAndSubmitSection(
+                      fileName: _selectedFileName!,
+                      fileSize: _selectedFileSize!,
+                      buildingId: _selectedBuildingId!,
+                      printType: _selectedPrintType!,
+                      jobId: _jobId,
+                      isSubmitted: _isSubmitted,
+                      theme: theme,
+                      colorScheme: colorScheme,
+                      formatFileSize: _formatFileSize,
+                    ),
+                  ),
+                ],
+              ],
+            ],
+              ],
+              ),
+            ),
+          ),
+          // Enhanced sticky submit button at bottom
+          if (showSubmitButton)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        colorScheme.primary,
+                        colorScheme.primary.withOpacity(0.9),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.primary.withOpacity(0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
                       // Generate mock job ID
                       final mockJobId = 'JOB${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
                       setState(() {
@@ -623,14 +949,34 @@ class _PrintPageState extends State<PrintPage> {
                         ),
                       );
                     },
-                    theme: theme,
-                    colorScheme: colorScheme,
-                    formatFileSize: _formatFileSize,
+                    icon: const Icon(Icons.send_rounded, size: 26),
+                    label: const Text(
+                      'Submit Print Job',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: colorScheme.onPrimary,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 22,
+                      ),
+                      minimumSize: const Size(double.infinity, 68),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
-                ],
-              ],
-            ],
-          ],
+                ),
+              ),
+            ),
+        ],
         ),
       ),
     );
@@ -645,7 +991,6 @@ class _ReviewAndSubmitSection extends StatelessWidget {
   final PrintType printType;
   final String? jobId;
   final bool isSubmitted;
-  final VoidCallback onSubmit;
   final ThemeData theme;
   final ColorScheme colorScheme;
   final String Function(int) formatFileSize;
@@ -657,7 +1002,6 @@ class _ReviewAndSubmitSection extends StatelessWidget {
     required this.printType,
     this.jobId,
     required this.isSubmitted,
-    required this.onSubmit,
     required this.theme,
     required this.colorScheme,
     required this.formatFileSize,
@@ -697,8 +1041,27 @@ class _ReviewAndSubmitSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: colorScheme.primaryContainer.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
+            gradient: const LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              stops: [0.0, 0.6],
+              colors: [
+                AppColors.secondaryOrange, // Orange
+                AppColors.primary, // Burgundy
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.widgetAccent.withOpacity(0.3),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.widgetShadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -707,7 +1070,7 @@ class _ReviewAndSubmitSection extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.assignment,
-                    color: colorScheme.primary,
+                    color: Colors.white,
                     size: 28,
                   ),
                   const SizedBox(width: 12),
@@ -716,7 +1079,7 @@ class _ReviewAndSubmitSection extends StatelessWidget {
                       isSubmitted ? 'Step 4: Print Job Submitted' : 'Step 4: Review & Submit',
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -728,7 +1091,7 @@ class _ReviewAndSubmitSection extends StatelessWidget {
                     ? 'Your print job has been submitted. Follow the steps below to release your print.'
                     : 'Review your selections and submit your print job.',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.7),
+                  color: Colors.white.withOpacity(0.9),
                 ),
               ),
             ],
@@ -825,18 +1188,8 @@ class _ReviewAndSubmitSection extends StatelessWidget {
           ),
         ),
 
-        // Submit button or Release instructions
-        if (!isSubmitted) ...[
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: onSubmit,
-            icon: const Icon(Icons.send),
-            label: const Text('Submit Print Job'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ] else if (instruction != null) ...[
+        // Release instructions (submit button is now sticky at bottom)
+        if (isSubmitted && instruction != null) ...[
           const SizedBox(height: 24),
           // Release instructions
           Container(
@@ -1156,6 +1509,139 @@ class _PrintTypeCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Widget for displaying print submission stepper
+class _PrintStepper extends StatelessWidget {
+  final int currentStep;
+  final ThemeData theme;
+  final ColorScheme colorScheme;
+
+  const _PrintStepper({
+    required this.currentStep,
+    required this.theme,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = [
+      {'label': 'Upload', 'icon': Icons.upload_file},
+      {'label': 'Building', 'icon': Icons.business},
+      {'label': 'Print Type', 'icon': Icons.print},
+      {'label': 'Review', 'icon': Icons.assignment},
+    ];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(steps.length, (index) {
+        final stepNumber = index + 1;
+        final isActive = stepNumber == currentStep;
+        final isCompleted = stepNumber < currentStep;
+        final step = steps[index];
+
+        return Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Step indicator
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Background circle
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isCompleted
+                          ? colorScheme.primary
+                          : isActive
+                              ? colorScheme.primaryContainer
+                              : colorScheme.surfaceVariant,
+                      border: Border.all(
+                        color: isActive || isCompleted
+                            ? colorScheme.primary
+                            : colorScheme.outline.withOpacity(0.3),
+                        width: isActive ? 2.5 : 1.5,
+                      ),
+                    ),
+                  ),
+                  // Icon or checkmark
+                  if (isCompleted)
+                    Icon(
+                      Icons.check,
+                      color: colorScheme.onPrimary,
+                      size: 22,
+                    )
+                  else
+                    Icon(
+                      step['icon'] as IconData,
+                          color: isActive
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withOpacity(0.7),
+                      size: 20,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Step label
+              Text(
+                step['label'] as String,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: isActive || isCompleted
+                      ? colorScheme.primary
+                      : colorScheme.onSurface.withOpacity(0.7),
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+/// Widget for displaying error cause items in error dialog
+class _ErrorCauseItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final ColorScheme colorScheme;
+  final ThemeData theme;
+
+  const _ErrorCauseItem({
+    required this.icon,
+    required this.text,
+    required this.colorScheme,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 14,
+          color: colorScheme.onSurface.withOpacity(0.7),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

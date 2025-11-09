@@ -12,6 +12,8 @@
 
 This **Task Breakdown Document (TBD)** translates the **PRD v1.1** into **actionable, prioritized, and time-boxed tasks** for a **3-week sprint** (UI-only demo, no backend).  
 
+> **⚠️ IMPORTANT: This is a UI demo for a school project (HCI Group Project). Full production functionality is NOT required. Focus on visual consistency, user experience, and demonstrating core features rather than complete feature parity or edge case handling.**
+
 All tasks assume:  
 - **Flutter 3.9.2+**  
 - **Legacy code** in `legacy/` (onboarding, homepage, navbar) is **reusable**  
@@ -127,14 +129,36 @@ All tasks assume:
 
 ---
 
+## Week 4 – Heuristic Improvements (5 days)
+
+| ID | Category | Task | Owner | Est. Effort | Dependencies | Status |
+|----|----------|------|-------|-------------|--------------|--------|
+| **T-401** | **Booking** | Make booking confirmation persistent & add "My Bookings" shortcut | @dev1 | 3h | T-204 | [x] |
+| **T-402** | **Laundry** | Clarify laundry terminology ("Available washer-dryer pair") | @dev2 | 2h | T-212 | [x] |
+| **T-403** | **Navbar** | Add "Undo" to navbar customization | @lead | 3h | Legacy | [x] |
+| **T-404** | **Printing** | Allow changing file after upload step | @dev1 | 2h | T-221 | [x] |
+| **T-405** | **Laundry** | Allow canceling laundry alerts from Alert Center | @dev2 | 2h | T-215 | [x] |
+| **T-406** | **UI/Theme** | Standardize timestamps and button dimensions across all new screens | @design | 5h | T-301 | [x] |
+| **T-407** | **Dorm Svcs**| Add pre-check for NFC availability before visitor registration prompt | @dev2 | 2h | T-243 | [x] |
+| **T-408** | **Laundry** | Prevent duplicate laundry alert taps (debounce) | @dev2 | 1h | T-213 | [x] |
+| **T-409** | **Printing** | Redesign Print Submit button for better visibility & add stepper | @design | 3h | T-224 | [x] |
+| **T-410** | **Booking** | Implement "Favorites" for rooms | @dev1 | 4h | T-202 | [x] |
+| **T-411** | **UI/Theme** | Audit and improve text contrast and font sizes on key screens | @design | 3h | T-302 | [x] |
+| **T-412** | **Printing** | Add contextual error dialog with "Retry" for failed uploads | @dev1 | 2h | T-221 | [x] |
+| **T-413** | **Onboarding**| Add "FAQ/Help" section and option to replay tutorial | @lead | 4h | Legacy | [x] |
+
+> **Week 4 Deliverable**: A polished UI demo incorporating student feedback and heuristic improvements.
+
+---
+
 ## Task Summary by Owner
 
 | Owner | Total Hours | Key Tasks |
 |-------|-------------|---------|
-| **@lead** | 19h | Setup, nav, polish, demo script |
-| **@dev1** | 36h | Booking, Print, Dorm Services, data |
-| **@dev2** | 34h | Laundry, Events, Dorm Services, data |
-| **@design** | 17h | UI components, theme, screenshots |
+| **@lead** | 26h | Setup, nav, polish, demo script, usability fixes |
+| **@dev1** | 47h | Booking, Print, Dorm Services, data, usability fixes |
+| **@dev2** | 41h | Laundry, Events, Dorm Services, data, usability fixes |
+| **@design** | 28h | UI components, theme, screenshots, UX improvements |
 
 ---
 

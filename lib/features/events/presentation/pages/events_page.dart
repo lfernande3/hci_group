@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../data/demo/events_data.dart';
+import '../../../../core/utils/date_time_formatter.dart';
+import '../../../../core/constants/ui_constants.dart';
 import '../../../../core/constants/route_constants.dart';
 
 /// Events Dashboard page with event feed
@@ -495,29 +497,6 @@ class _EventCard extends StatelessWidget {
     required this.colorScheme,
   });
 
-  String _formatDateTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final eventDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-    
-    if (eventDate == today) {
-      return 'Today, ${_formatTime(dateTime)}';
-    } else if (eventDate == today.add(const Duration(days: 1))) {
-      return 'Tomorrow, ${_formatTime(dateTime)}';
-    } else {
-      final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      final weekday = weekdays[dateTime.weekday - 1];
-      return '${weekday}, ${dateTime.day}/${dateTime.month} ${_formatTime(dateTime)}';
-    }
-  }
-
-  String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return '$displayHour:$minute $period';
-  }
 
   String _getCategoryLabel(EventCategory category) {
     switch (category) {
@@ -635,7 +614,7 @@ class _EventCard extends StatelessWidget {
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: _getCategoryColor(event.category),
                         fontWeight: FontWeight.w600,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -654,7 +633,7 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      _formatDateTime(event.startTime),
+                      DateTimeFormatter.formatDateTimeSmart(event.startTime),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurface.withOpacity(0.8),
                       ),
@@ -701,7 +680,7 @@ class _EventCard extends StatelessWidget {
                     child: Text(
                       _getLanguageLabel(event.language),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -721,7 +700,7 @@ class _EventCard extends StatelessWidget {
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: _getRegistrationStatusColor(event.registrationStatus),
                         fontWeight: FontWeight.w600,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -739,7 +718,7 @@ class _EventCard extends StatelessWidget {
                       event.source,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colorScheme.onPrimaryContainer,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ),

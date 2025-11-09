@@ -164,6 +164,31 @@ class AppRouter {
             builder: (context, state) => const _PlaceholderPage(title: 'Student Life'),
           ),
           GoRoute(
+            path: RouteConstants.cresda,
+            name: 'cresda',
+            builder: (context, state) => const _PlaceholderPage(title: 'CRESDA'),
+          ),
+          GoRoute(
+            path: RouteConstants.studentServices,
+            name: 'student-services',
+            builder: (context, state) => const _PlaceholderPage(title: 'Student Services'),
+          ),
+          GoRoute(
+            path: RouteConstants.studentFeedback,
+            name: 'student-feedback',
+            builder: (context, state) => const _PlaceholderPage(title: 'Student Feedback'),
+          ),
+          GoRoute(
+            path: RouteConstants.counsellingServices,
+            name: 'counselling-services',
+            builder: (context, state) => const _PlaceholderPage(title: 'Counselling Services'),
+          ),
+          GoRoute(
+            path: RouteConstants.myPrivileges,
+            name: 'my-privileges',
+            builder: (context, state) => const _PlaceholderPage(title: 'My Privileges'),
+          ),
+          GoRoute(
             path: RouteConstants.campus,
             name: 'campus',
             builder: (context, state) => const _PlaceholderPage(title: 'Campus'),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/demo/dorm_services_data.dart';
+import '../../../../core/theme/colors.dart';
 
 /// A/C Management page showing balance and usage history
 class ACManagementPage extends StatefulWidget {
@@ -73,6 +74,23 @@ class _ACManagementPageState extends State<ACManagementPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('A/C Management'),
+        actions: [
+          IconButton(
+            icon: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.refresh),
+            onPressed: _isLoading ? null : () {
+              _loadACDetails();
+            },
+            tooltip: 'Refresh',
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -125,16 +143,33 @@ class _ACBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = getACStatusColor(acDetails.status);
     final statusText = acDetails.status == ACBalanceStatus.sufficient
         ? 'Sufficient'
         : acDetails.status == ACBalanceStatus.low
             ? 'Low'
             : 'Critical';
 
-    return Card(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      decoration: BoxDecoration(
+        // CityU gradient background - orange to burgundy
+        gradient: const LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          stops: [0.0, 0.6], // Later gradient point
+          colors: [
+            AppColors.secondaryOrange, // Orange
+            AppColors.primary, // Burgundy
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.widgetAccent.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -148,14 +183,14 @@ class _ACBalanceCard extends StatelessWidget {
                     Text(
                       'A/C Balance',
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: Colors.white.withOpacity(0.9),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       acDetails.roomNumber,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: Colors.white.withOpacity(0.8),
                       ),
                     ),
                   ],
@@ -164,14 +199,14 @@ class _ACBalanceCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.15),
+                    color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: statusColor, width: 1.5),
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
                   ),
                   child: Text(
                     statusText,
                     style: theme.textTheme.labelMedium?.copyWith(
-                      color: statusColor,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -188,7 +223,7 @@ class _ACBalanceCard extends StatelessWidget {
                 Text(
                   formatBalanceHours(acDetails.balanceHours),
                   style: theme.textTheme.displayMedium?.copyWith(
-                    color: statusColor,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -196,7 +231,7 @@ class _ACBalanceCard extends StatelessWidget {
                 Text(
                   'remaining',
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
               ],
@@ -209,13 +244,13 @@ class _ACBalanceCard extends StatelessWidget {
                 Icon(
                   Icons.update,
                   size: 16,
-                  color: colorScheme.onSurface.withOpacity(0.5),
+                  color: Colors.white.withOpacity(0.8),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   'Last updated: ${_formatLastUpdated(acDetails.lastUpdated)}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -231,6 +266,8 @@ class _ACBalanceCard extends StatelessWidget {
                 label: const Text('Top Up'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.primary,
                 ),
               ),
             ),
@@ -270,7 +307,16 @@ class _UsageHistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      margin: EdgeInsets.zero,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.widgetAccent.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -362,6 +408,7 @@ class _UsageChart extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Bar
                 Container(
@@ -378,11 +425,19 @@ class _UsageChart extends StatelessWidget {
                 const SizedBox(height: 4),
                 // Hour label (show every 6 hours)
                 if (hour.hour.hour % 6 == 0)
-                  Text(
-                    '${hour.hour.hour.toString().padLeft(2, '0')}:00',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.5),
-                      fontSize: 10,
+                  SizedBox(
+                    height: 12,
+                    child: Center(
+                      child: Text(
+                        '${hour.hour.hour}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurface.withOpacity(0.5),
+                          fontSize: 10,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                      ),
                     ),
                   )
                 else

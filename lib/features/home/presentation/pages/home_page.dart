@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 // Core imports
 import '../../../../core/theme/colors.dart';
@@ -8,9 +8,6 @@ import '../../../../core/constants/route_constants.dart';
 import '../../../../core/data/mocks/mock_json_data.dart';
 import '../../../../core/presentation/widgets/next_event_widget.dart';
 import '../../../../core/presentation/widgets/grid_item_widget.dart';
-import '../../../../core/presentation/widgets/loading_widget.dart';
-
-// Feature imports
 import '../../../auth/presentation/providers/user_provider.dart';
 
 /// Homepage with next event widget and grid
@@ -47,39 +44,32 @@ class HomePage extends StatelessWidget {
         actions: [
           Consumer<UserProvider>(
             builder: (context, userProvider, child) {
-              if (userProvider.isLoading) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SmallLoadingWidget(),
-                );
-              }
+              final isLoggedIn = userProvider.isLoggedIn;
+              final buttonText = isLoggedIn 
+                  ? (userProvider.user?.fullName ?? 'User')
+                  : 'Login';
+              final buttonColor = isLoggedIn 
+                  ? AppColors.primary // Burgundy when logged in
+                  : AppColors.secondaryOrange; // Orange when not logged in
               
-              return Container(
-                margin: const EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green, width: 2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    if (userProvider.needsLogin) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Redirecting to CityU login...'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    } else {
-                      _showUserMenu(context, userProvider);
-                    }
-                  },
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: ElevatedButton(
+                  onPressed: () => context.go(RouteConstants.login),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 2,
+                  ),
                   child: Text(
-                    userProvider.needsLogin ? 'Login' : userProvider.displayName,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: userProvider.needsLogin 
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.w600,
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -98,10 +88,16 @@ class HomePage extends StatelessWidget {
               onTap: () => context.go(RouteConstants.timetable),
             ),
             
-            // New Features Section
+            // Quick Access Buttons (WeChat-style)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: _QuickAccessButtons(),
+            ),
+            
+            // Student Life Section
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: _NewFeaturesSection(),
+              child: _StudentLifeSection(),
             ),
             
             // Grid Section
@@ -134,219 +130,300 @@ class HomePage extends StatelessWidget {
     }
     return null; // No upcoming events
   }
-
-  /// Show user menu with profile options
-  void _showUserMenu(BuildContext context, UserProvider userProvider) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.account_circle),
-              title: Text(userProvider.user?.fullName ?? 'User Profile'),
-              subtitle: Text(userProvider.user?.email ?? ''),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go(RouteConstants.settings);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Log Out'),
-              onTap: () {
-                Navigator.pop(context);
-                userProvider.logout();
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
-class _NewFeaturesSection extends StatelessWidget {
-  const _NewFeaturesSection();
+class _QuickAccessButtons extends StatelessWidget {
+  const _QuickAccessButtons();
 
   @override
   Widget build(BuildContext context) {
-    final newFeatures = [
+    // Row 1: Booking, Print, Laundry, A/C
+    final row1Buttons = [
       {
-        'title': 'Room Booking',
-        'subtitle': 'Reserve study rooms & facilities',
+        'title': 'Booking',
         'icon': Icons.event_available,
         'color': AppColors.primary,
         'route': RouteConstants.booking,
       },
       {
-        'title': 'Laundry Status',
-        'subtitle': 'Check machine availability',
-        'icon': Icons.local_laundry_service,
-        'color': AppColors.secondaryOrange,
-        'route': RouteConstants.laundry,
-      },
-      {
-        'title': 'Print Documents',
-        'subtitle': 'Submit print jobs anywhere',
+        'title': 'Print',
         'icon': Icons.print,
         'color': AppColors.secondaryPurple,
         'route': RouteConstants.print,
       },
       {
-        'title': 'Campus Events',
-        'subtitle': 'Discover activities & clubs',
+        'title': 'Laundry',
+        'icon': Icons.local_laundry_service,
+        'color': AppColors.secondaryOrange,
+        'route': RouteConstants.laundry,
+      },
+      {
+        'title': 'A/C',
+        'icon': Icons.ac_unit,
+        'color': AppColors.primary,
+        'route': RouteConstants.acManagement,
+      },
+    ];
+
+    // Row 2: Events, Visitor Registration, Grade Report, Campus Map
+    final row2Buttons = [
+      {
+        'title': 'Events',
         'icon': Icons.event,
         'color': AppColors.info,
         'route': RouteConstants.events,
       },
       {
-        'title': 'A/C Management',
-        'subtitle': 'Monitor & top up A/C credit',
-        'icon': Icons.ac_unit,
-        'color': AppColors.primary,
-        'route': RouteConstants.acManagement,
-      },
-      {
         'title': 'Visitor Registration',
-        'subtitle': 'Register guests with NFC',
         'icon': Icons.person_add,
         'color': AppColors.secondaryOrange,
         'route': RouteConstants.visitorRegistration,
+      },
+      {
+        'title': 'Grade Report',
+        'icon': Icons.assessment,
+        'color': AppColors.primary,
+        'route': RouteConstants.gradeReport,
+      },
+      {
+        'title': 'Campus Map',
+        'icon': Icons.map,
+        'color': AppColors.info,
+        'route': RouteConstants.campusMap,
+      },
+    ];
+
+    return Column(
+      children: [
+        // Row 1
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: row1Buttons.map((button) {
+            return Expanded(
+              child: _buildButton(
+                context,
+                title: button['title'] as String,
+                icon: button['icon'] as IconData,
+                color: button['color'] as Color,
+                route: button['route'] as String,
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        // Row 2
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: row2Buttons.map((button) {
+            return Expanded(
+              child: _buildButton(
+                context,
+                title: button['title'] as String,
+                icon: button['icon'] as IconData,
+                color: button['color'] as Color,
+                route: button['route'] as String,
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButton(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required String route,
+  }) {
+    return InkWell(
+      onTap: () => context.go(route),
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Circular icon container
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Title text
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StudentLifeSection extends StatelessWidget {
+  const _StudentLifeSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final buttons = [
+      {
+        'title': 'Emergency Support',
+        'icon': Icons.emergency,
+        'color': AppColors.error,
+        'route': RouteConstants.emergency,
+      },
+      {
+        'title': 'CRESDA',
+        'icon': Icons.business_center,
+        'color': AppColors.primary,
+        'route': RouteConstants.cresda,
+      },
+      {
+        'title': 'Student Services',
+        'icon': Icons.school,
+        'color': AppColors.info,
+        'route': RouteConstants.studentServices,
+      },
+      {
+        'title': 'Student Feedback',
+        'icon': Icons.feedback,
+        'color': AppColors.secondaryOrange,
+        'route': RouteConstants.studentFeedback,
+      },
+      {
+        'title': 'Counselling Services',
+        'icon': Icons.psychology,
+        'color': AppColors.secondaryPurple,
+        'route': RouteConstants.counsellingServices,
+      },
+      {
+        'title': 'My Privileges',
+        'icon': Icons.card_membership,
+        'color': AppColors.primary,
+        'route': RouteConstants.myPrivileges,
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
+        Text(
+          'Student Life',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Arrange buttons in rows of 2
+        ...List.generate(
+          (buttons.length / 2).ceil(),
+          (rowIndex) {
+            final startIndex = rowIndex * 2;
+            final endIndex = (startIndex + 2).clamp(0, buttons.length);
+            final rowButtons = buttons.sublist(startIndex, endIndex);
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildButton(
+                      context,
+                      title: rowButtons[0]['title'] as String,
+                      icon: rowButtons[0]['icon'] as IconData,
+                      color: rowButtons[0]['color'] as Color,
+                      route: rowButtons[0]['route'] as String,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  if (rowButtons.length > 1)
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        title: rowButtons[1]['title'] as String,
+                        icon: rowButtons[1]['icon'] as IconData,
+                        color: rowButtons[1]['color'] as Color,
+                        route: rowButtons[1]['route'] as String,
+                      ),
+                    )
+                  else
+                    const Expanded(child: SizedBox()),
+                ],
               ),
-              child: const Text(
-                'NEW',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButton(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required String route,
+  }) {
+    return InkWell(
+      onTap: () => context.go(route),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Circular icon container
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
               ),
             ),
-            const SizedBox(width: 8),
-            Text(
-              'Enhanced Features',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+            const SizedBox(width: 12),
+            // Title text
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 150, // Increased height to prevent overflow
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: newFeatures.length,
-            padding: const EdgeInsets.only(left: 4, right: 4), // Add padding to prevent clipping
-            itemBuilder: (context, index) {
-              final feature = newFeatures[index];
-              return Container(
-                width: 160, // Optimized width for better fit
-                margin: EdgeInsets.only(right: index == newFeatures.length - 1 ? 0 : 12),
-                child: Card(
-                  elevation: 6, // Increased elevation for better contrast
-                  shadowColor: Colors.black.withOpacity(0.3),
-                  color: Theme.of(context).colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: (feature['color'] as Color).withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: InkWell(
-                    onTap: () => context.go(feature['route'] as String),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  (feature['color'] as Color).withOpacity(0.15),
-                                  (feature['color'] as Color).withOpacity(0.08),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: (feature['color'] as Color).withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Icon(
-                              feature['icon'] as IconData,
-                              color: feature['color'] as Color,
-                              size: 22,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  feature['title'] as String,
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontSize: 13,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  feature['subtitle'] as String,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                                    fontSize: 11,
-                                    height: 1.15,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -357,97 +434,32 @@ class _GridSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gridItems = [
-      // New enhanced features
-      {
-        'title': 'Room Booking',
-        'icon': Icons.event_available,
-        'route': RouteConstants.booking,
-      },
-      {
-        'title': 'Laundry Status',
-        'icon': Icons.local_laundry_service,
-        'route': RouteConstants.laundry,
-      },
-      {
-        'title': 'Print Documents',
-        'icon': Icons.print,
-        'route': RouteConstants.print,
-      },
-      {
-        'title': 'Campus Events',
-        'icon': Icons.event,
-        'route': RouteConstants.events,
-      },
-      // Existing features
-      {
-        'title': 'Student Life',
-        'icon': Icons.groups,
-        'route': RouteConstants.studentLife,
-      },
+      // Existing features (duplicates removed - now in Quick Access Buttons above)
       {
         'title': 'Campus',
         'icon': Icons.location_city,
         'route': RouteConstants.campus,
       },
       {
-        'title': 'Grade Report',
-        'icon': Icons.assessment,
-        'route': RouteConstants.gradeReport,
-      },
-      {
-        'title': 'Important Contacts',
+        'title': 'Contacts',
         'icon': Icons.contacts,
         'route': RouteConstants.contacts,
-      },
-      {
-        'title': 'News',
-        'icon': Icons.newspaper,
-        'route': RouteConstants.news,
-      },
-      {
-        'title': 'CityU CAP',
-        'icon': Icons.school,
-        'route': RouteConstants.cap,
-      },
-      {
-        'title': 'CityUTube',
-        'icon': Icons.play_circle,
-        'route': RouteConstants.cityuTube,
-      },
-      {
-        'title': 'Room Availability',
-        'icon': Icons.meeting_room,
-        'route': RouteConstants.roomAvailability,
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Quick Access',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 1.0,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
           ),
-        ),
-        const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            // Responsive grid based on screen width
-            final screenWidth = constraints.maxWidth;
-            final crossAxisCount = screenWidth > 600 ? 3 : 2;
-            final childAspectRatio = screenWidth > 600 ? 1.5 : 1.4;
-            
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                childAspectRatio: childAspectRatio,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: gridItems.length,
+          itemCount: gridItems.length,
           itemBuilder: (context, index) {
             final item = gridItems[index];
             return GridItemWidget(
@@ -458,8 +470,6 @@ class _GridSection extends StatelessWidget {
                 final route = item['route'] as String;
                 context.go(route);
               },
-            );
-          },
             );
           },
         ),

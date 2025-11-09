@@ -75,7 +75,7 @@ class NextEventWidget extends StatelessWidget {
             
             // Main content
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: nextEvent != null 
                   ? _buildEventContent(context, nextEvent!)
                   : _buildPlaceholderContent(context),
@@ -110,7 +110,7 @@ class NextEventWidget extends StatelessWidget {
           ),
         ),
         
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         
         // Event title
         Text(
@@ -118,7 +118,7 @@ class NextEventWidget extends StatelessWidget {
           style: theme.textTheme.titleLarge?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 18,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -126,12 +126,12 @@ class NextEventWidget extends StatelessWidget {
         
         // Course code if available - inline with title
         if (event.courseCode != null) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             event.courseCode!,
             style: theme.textTheme.titleSmall?.copyWith(
               color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
+              fontSize: 13,
             ),
           ),
         ],
@@ -161,7 +161,7 @@ class NextEventWidget extends StatelessWidget {
           ],
         ),
         
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         
         Row(
           children: [
@@ -187,14 +187,14 @@ class NextEventWidget extends StatelessWidget {
           ],
         ),
         
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         
         // Tap hint - smaller and more subtle
         Text(
           'Tap to view timetable',
           style: theme.textTheme.bodySmall?.copyWith(
             color: Colors.white.withOpacity(0.7),
-            fontSize: 10,
+            fontSize: 9,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -211,21 +211,22 @@ class NextEventWidget extends StatelessWidget {
       children: [
         Icon(
           Icons.event_available,
-          size: 48,
+          size: 40,
           color: Colors.white.withOpacity(0.6),
         ),
         
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         
         Text(
           'Welcome back to CityUHK Mobile',
           style: theme.textTheme.headlineMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
         
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         
         Text(
           'No upcoming events found.\nYour next class or event will appear here.',
@@ -253,16 +254,16 @@ class NextEventWidget extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     
-    // Adjust height based on screen size and orientation - reduced for more compact layout
+    // Adjust height based on screen size and orientation - further reduced for more compact layout
     if (screenWidth > 600) {
       // Tablet or larger screens
-      return screenHeight * 0.25;
+      return screenHeight * 0.20;
     } else if (screenHeight < 700) {
       // Smaller phone screens
-      return screenHeight * 0.25;
+      return screenHeight * 0.20;
     } else {
-      // Default phone screens - reduced from 0.4 to 0.28
-      return screenHeight * 0.28;
+      // Default phone screens - reduced from 0.28 to 0.22
+      return screenHeight * 0.22;
     }
   }
 }

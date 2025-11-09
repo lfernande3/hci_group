@@ -23,12 +23,20 @@ class AppTheme {
       ),
       
       // App bar theme
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.lightBackground,
         foregroundColor: AppColors.lightOnSurface,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: AppTextStyles.headlineMedium,
+        titleTextStyle: AppTextStyles.headlineMedium.copyWith(
+          color: AppColors.lightOnSurface,
+        ),
+        iconTheme: const IconThemeData(
+          color: AppColors.lightOnSurface,
+        ),
+        actionsIconTheme: const IconThemeData(
+          color: AppColors.lightOnSurface,
+        ),
       ),
       
       // Bottom navigation bar theme
@@ -123,12 +131,20 @@ class AppTheme {
       ),
       
       // App bar theme
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkBackground,
         foregroundColor: AppColors.darkOnSurface,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: AppTextStyles.headlineMedium,
+        titleTextStyle: AppTextStyles.headlineMedium.copyWith(
+          color: AppColors.darkOnSurface,
+        ),
+        iconTheme: const IconThemeData(
+          color: AppColors.darkOnSurface,
+        ),
+        actionsIconTheme: const IconThemeData(
+          color: AppColors.darkOnSurface,
+        ),
       ),
       
       // Bottom navigation bar theme

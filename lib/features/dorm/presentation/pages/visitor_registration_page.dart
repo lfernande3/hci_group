@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../data/demo/dorm_services_data.dart';
+import '../../../../core/utils/nfc_availability_checker.dart';
+import '../../../../core/constants/ui_constants.dart';
+import '../../../../core/theme/colors.dart';
 
 /// Visitor Registration page with NFC tap to verify student identity
 class VisitorRegistrationPage extends StatefulWidget {
@@ -24,6 +27,11 @@ class _VisitorRegistrationPageState extends State<VisitorRegistrationPage>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  
+  // NFC availability state
+  bool _isCheckingNFC = true;
+  bool _isNFCAvailable = false;
+  String? _nfcErrorMessage;
 
   @override
   void initState() {
@@ -44,6 +52,37 @@ class _VisitorRegistrationPageState extends State<VisitorRegistrationPage>
         curve: Curves.easeIn,
       ),
     );
+    
+    // Check NFC availability on page load
+    _checkNFCAvailability();
+  }
+  
+  Future<void> _checkNFCAvailability() async {
+    setState(() {
+      _isCheckingNFC = true;
+    });
+    
+    try {
+      final isAvailable = await NFCAvailabilityChecker.isNFCAvailable();
+      final isEnabled = await NFCAvailabilityChecker.isNFCEnabled();
+      
+      setState(() {
+        _isCheckingNFC = false;
+        _isNFCAvailable = isAvailable && isEnabled;
+        
+        if (!isAvailable) {
+          _nfcErrorMessage = NFCAvailabilityChecker.getUnavailableMessage();
+        } else if (!isEnabled) {
+          _nfcErrorMessage = NFCAvailabilityChecker.getDisabledMessage();
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isCheckingNFC = false;
+        _isNFCAvailable = false;
+        _nfcErrorMessage = 'Unable to check NFC availability. Please try again.';
+      });
+    }
   }
 
   @override
@@ -124,38 +163,53 @@ class _VisitorRegistrationPageState extends State<VisitorRegistrationPage>
                 theme: theme,
                 colorScheme: colorScheme,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
-              // Main Content based on state
-              if (_state == _VerificationState.initial)
-                _InitialStateView(
+              // NFC Availability Check
+              if (_isCheckingNFC)
+                _NFCCheckingView(
                   theme: theme,
                   colorScheme: colorScheme,
-                  onStartScanning: _startScanning,
                 )
-              else if (_state == _VerificationState.scanning)
-                _ScanningStateView(
+              else if (!_isNFCAvailable)
+                _NFCUnavailableView(
                   theme: theme,
                   colorScheme: colorScheme,
-                  onNFCTap: _simulateNFCTap,
+                  errorMessage: _nfcErrorMessage ?? 'NFC is not available',
+                  onRetry: _checkNFCAvailability,
                 )
-              else if (_state == _VerificationState.success)
-                _SuccessStateView(
-                  theme: theme,
-                  colorScheme: colorScheme,
-                  studentId: _verifiedStudentId!,
-                  scaleAnimation: _scaleAnimation,
-                  fadeAnimation: _fadeAnimation,
-                  onReset: _reset,
-                )
-              else if (_state == _VerificationState.error)
-                _ErrorStateView(
-                  theme: theme,
-                  colorScheme: colorScheme,
-                  errorMessage: _errorMessage ?? 'Verification failed',
-                  onRetry: _retry,
-                  onReset: _reset,
-                ),
+              else ...[
+                // Main Content based on state
+                if (_state == _VerificationState.initial)
+                  _InitialStateView(
+                    theme: theme,
+                    colorScheme: colorScheme,
+                    onStartScanning: _startScanning,
+                  )
+                else if (_state == _VerificationState.scanning)
+                  _ScanningStateView(
+                    theme: theme,
+                    colorScheme: colorScheme,
+                    onNFCTap: _simulateNFCTap,
+                  )
+                else if (_state == _VerificationState.success)
+                  _SuccessStateView(
+                    theme: theme,
+                    colorScheme: colorScheme,
+                    studentId: _verifiedStudentId!,
+                    scaleAnimation: _scaleAnimation,
+                    fadeAnimation: _fadeAnimation,
+                    onReset: _reset,
+                  )
+                else if (_state == _VerificationState.error)
+                  _ErrorStateView(
+                    theme: theme,
+                    colorScheme: colorScheme,
+                    errorMessage: _errorMessage ?? 'Verification failed',
+                    onRetry: _retry,
+                    onReset: _reset,
+                  ),
+              ],
             ],
           ),
         ),
@@ -176,9 +230,35 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      decoration: BoxDecoration(
+        // CityU gradient background - orange to burgundy
+        gradient: const LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          stops: [0.0, 0.6], // Later gradient point
+          colors: [
+            AppColors.secondaryOrange, // Orange
+            AppColors.primary, // Burgundy
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.widgetAccent.withOpacity(0.3),
+          width: 1.5,
+        ),
+        // Subtle shadow for depth
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.widgetShadow,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -186,7 +266,7 @@ class _HeaderCard extends StatelessWidget {
               children: [
                 Icon(
                   Icons.person_add,
-                  color: colorScheme.primary,
+                  color: Colors.white,
                   size: 28,
                 ),
                 const SizedBox(width: 12),
@@ -195,6 +275,7 @@ class _HeaderCard extends StatelessWidget {
                     'NFC Tap to Verify',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -204,7 +285,7 @@ class _HeaderCard extends StatelessWidget {
             Text(
               'Ask the host student to tap their CityU Student ID card on your phone\'s NFC reader to verify their identity.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.7),
+                color: Colors.white.withOpacity(0.9),
               ),
             ),
           ],
@@ -624,40 +705,62 @@ class _SuccessStateView extends StatelessWidget {
             FadeTransition(
               opacity: fadeAnimation,
               child: Container(
-                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.zero,
                 decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                  // CityU gradient background - orange to burgundy
+                  gradient: const LinearGradient(
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                    stops: [0.0, 0.6], // Later gradient point
+                    colors: [
+                      AppColors.secondaryOrange, // Orange
+                      AppColors.primary, // Burgundy
+                    ],
                   ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person,
-                          color: colorScheme.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Student ID Verified',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Student ID: $studentId',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.7),
-                      ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.widgetAccent.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                  // Subtle shadow for depth
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.widgetShadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Student ID Verified',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Student ID: $studentId',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -789,6 +892,142 @@ class _ErrorStateView extends StatelessWidget {
                 onPressed: onReset,
                 child: const Text('Start Over'),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// NFC Checking View - Shows loading state while checking NFC availability
+class _NFCCheckingView extends StatelessWidget {
+  final ThemeData theme;
+  final ColorScheme colorScheme;
+
+  const _NFCCheckingView({
+    required this.theme,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 24),
+            Text(
+              'Checking NFC Availability',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Please wait while we check if NFC is available on your device...',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// NFC Unavailable View - Shows error message when NFC is not available
+class _NFCUnavailableView extends StatelessWidget {
+  final ThemeData theme;
+  final ColorScheme colorScheme;
+  final String errorMessage;
+  final VoidCallback onRetry;
+
+  const _NFCUnavailableView({
+    required this.theme,
+    required this.colorScheme,
+    required this.errorMessage,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            // Error Icon
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.nfc_outlined,
+                size: 48,
+                color: colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'NFC Not Available',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.error.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: colorScheme.error,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      errorMessage,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onErrorContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Check Again'),
+                style: ElevatedButton.styleFrom(
+                  padding: UIConstants.largeButtonPadding,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Go Back'),
             ),
           ],
         ),

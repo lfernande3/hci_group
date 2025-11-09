@@ -51,6 +51,7 @@ A **unified, accessible, and actionable** interface that:
 
 > **All features equal priority** – delivered together in a single UI-only demo.  
 > **No backend, no auth, no API** – static demo data only.  
+> **⚠️ IMPORTANT: This is a UI demo for a school project (HCI Group Project). Full production functionality is NOT required. Focus on visual consistency, user experience, and demonstrating core features rather than complete feature parity or edge case handling.**  
 
 ### 3.1 Core Accessibility Foundation (Legacy – Completed)  
 | Feature | Description | Status |  

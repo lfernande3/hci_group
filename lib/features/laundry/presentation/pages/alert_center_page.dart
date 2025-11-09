@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/date_time_formatter.dart';
+import '../../../../core/constants/ui_constants.dart';
 import '../../data/models/laundry_alert.dart';
 
 /// Alert Center page showing list of active laundry alerts
@@ -98,11 +100,52 @@ class _AlertCenterPageState extends State<AlertCenterPage> {
   }
 
   void _cancelAlert(String alertId) {
-    _alertManager.removeAlert(alertId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Alert cancelled'),
-        behavior: SnackBarBehavior.floating,
+    // Find the alert to show in confirmation dialog
+    final alert = _activeAlerts.firstWhere(
+      (a) => a.id == alertId,
+      orElse: () => _activeAlerts.first,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Alert'),
+        content: Text(
+          'Are you sure you want to cancel the alert for ${alert.stackLabel} - ${alert.machineType}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Keep Alert'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _alertManager.removeAlert(alertId);
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text('Alert cancelled: ${alert.stackLabel}'),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Colors.orange,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Cancel Alert'),
+          ),
+        ],
       ),
     );
   }
@@ -378,7 +421,7 @@ class _AlertCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  _formatTimeAgo(alert.createdAt),
+                  DateTimeFormatter.formatTimeAgo(alert.createdAt),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withOpacity(0.5),
                   ),
@@ -391,20 +434,6 @@ class _AlertCard extends StatelessWidget {
     );
   }
 
-  String _formatTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else {
-      return '${difference.inDays}d ago';
-    }
-  }
 }
 
 /// Grace Period Button Widget

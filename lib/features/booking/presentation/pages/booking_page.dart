@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../data/demo/booking_data.dart';
+import '../../../../core/utils/date_time_formatter.dart';
+import '../../data/datasources/booking_storage_service.dart';
+import '../../data/datasources/favorites_storage_service.dart';
+import '../../data/models/saved_booking_model.dart';
+import 'my_bookings_page.dart';
 
 /// Booking Services page with TabBar for different room types
 class BookingPage extends StatelessWidget {
@@ -10,16 +15,13 @@ class BookingPage extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Booking Services'),
-        // AppTheme automatically applied
-      ),
-      body: DefaultTabController(
-        length: 4,
-        child: Column(
-          children: [
-            // TabBar with 4 tabs
-            TabBar(
+      body: SafeArea(
+        child: DefaultTabController(
+          length: 4,
+          child: Column(
+            children: [
+              // TabBar with 4 tabs
+              TabBar(
               tabs: const [
                 Tab(
                   icon: Icon(Icons.library_books),
@@ -56,6 +58,17 @@ class BookingPage extends StatelessWidget {
             ),
           ],
         ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MyBookingsPage()),
+          );
+        },
+        tooltip: 'My Bookings',
+        child: const Icon(Icons.event_note),
       ),
     );
   }
@@ -74,21 +87,48 @@ class _RoomTypeTabView extends StatefulWidget {
 
 class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
   String? _selectedSlotKey; // Format: "roomId-startTime"
+  bool _showFavoritesOnly = false;
+  Set<String> _favoriteRoomIds = {};
+  final _favoritesService = FavoritesStorageService();
 
-  String get _roomTypeLabel {
-    switch (widget.roomType) {
-      case RoomType.study:
-        return 'Study Rooms';
-      case RoomType.classroom:
-        return 'Classrooms';
-      case RoomType.sports:
-        return 'Sports Facilities';
-      case RoomType.music:
-        return 'Music Rooms';
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    try {
+      final favorites = await _favoritesService.getFavorites();
+      if (mounted) {
+        setState(() {
+          _favoriteRoomIds = favorites.toSet();
+        });
+      }
+    } catch (e) {
+      // Silently fail for demo
     }
   }
 
-  List<Room> get _rooms {
+  Future<void> _toggleFavorite(String roomId) async {
+    try {
+      final newStatus = await _favoritesService.toggleFavorite(roomId);
+      if (mounted) {
+        setState(() {
+          if (newStatus) {
+            _favoriteRoomIds.add(roomId);
+          } else {
+            _favoriteRoomIds.remove(roomId);
+          }
+        });
+      }
+    } catch (e) {
+      // Silently fail for demo
+      debugPrint('Failed to toggle favorite: $e');
+    }
+  }
+
+  List<Room> get _allRooms {
     switch (widget.roomType) {
       case RoomType.study:
         return studyRooms;
@@ -101,6 +141,13 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
     }
   }
 
+  List<Room> get _rooms {
+    if (_showFavoritesOnly) {
+      return _allRooms.where((room) => _favoriteRoomIds.contains(room.id)).toList();
+    }
+    return _allRooms;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -110,46 +157,124 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Date header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          color: colorScheme.surfaceVariant,
-          child: Row(
-            children: [
-              Text(
-                _roomTypeLabel,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _formatDate(selectedDate),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Legend with favorites switch inline
+        _buildLegend(context, theme, colorScheme),
         // Timetable Grid
         Expanded(
-          child: _TimetableGrid(
-            rooms: _rooms,
-            selectedDate: selectedDate,
-            selectedSlotKey: _selectedSlotKey,
-            onSlotTap: (slotKey) {
-              _showBookingConfirmation(context, slotKey, selectedDate);
-            },
-          ),
+          child: _rooms.isEmpty && _showFavoritesOnly
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.star_border,
+                        size: 64,
+                        color: colorScheme.onSurface.withOpacity(0.3),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No favorite rooms',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tap the star icon on a room to add it to favorites',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
+              : _TimetableGrid(
+                  rooms: _rooms,
+                  selectedDate: selectedDate,
+                  selectedSlotKey: _selectedSlotKey,
+                  favoriteRoomIds: _favoriteRoomIds,
+                  onSlotTap: (slotKey) {
+                    _showBookingConfirmation(context, slotKey, selectedDate);
+                  },
+                  onFavoriteToggle: _toggleFavorite,
+                ),
         ),
       ],
     );
   }
 
-  String _formatDate(DateTime date) {
-    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return '${weekdays[date.weekday - 1]}, ${date.day}/${date.month}';
+
+  Widget _buildLegend(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surface.withOpacity(0.5),
+        border: Border(
+          bottom: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _LegendItem(
+                    icon: Icons.add_circle_outline,
+                    iconColor: Colors.green.shade700,
+                    backgroundColor: Colors.green.withOpacity(0.3),
+                    label: 'Available',
+                    theme: theme,
+                  ),
+                  const SizedBox(width: 12),
+                  _LegendItem(
+                    icon: Icons.block,
+                    iconColor: colorScheme.onSurface.withOpacity(0.3),
+                    backgroundColor: colorScheme.surfaceVariant,
+                    label: 'Booked',
+                    theme: theme,
+                  ),
+                  const SizedBox(width: 12),
+                  _LegendItem(
+                    icon: Icons.check_circle,
+                    iconColor: colorScheme.onPrimary,
+                    backgroundColor: colorScheme.primary,
+                    label: 'Selected',
+                    theme: theme,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Favorites filter toggle inline with legend
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.star,
+                size: 16,
+                color: _showFavoritesOnly 
+                    ? Colors.amber 
+                    : colorScheme.onSurface.withOpacity(0.6),
+              ),
+              const SizedBox(width: 4),
+              Switch(
+                value: _showFavoritesOnly,
+                onChanged: (value) {
+                  setState(() {
+                    _showFavoritesOnly = value;
+                  });
+                },
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   void _showBookingConfirmation(
@@ -157,9 +282,9 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
     String slotKey,
     DateTime selectedDate,
   ) {
-    // Parse slot key: "roomId-startTime"
-    final parts = slotKey.split('-');
-    if (parts.length < 2) return;
+    // Parse slot key: "roomId___startTime" (using ___ as delimiter to avoid conflicts with room IDs containing hyphens)
+    final parts = slotKey.split('___');
+    if (parts.length != 2) return;
 
     final roomId = parts[0];
     final startTimeMs = int.tryParse(parts[1]);
@@ -179,6 +304,7 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
 
     showDialog(
       context: context,
+      barrierDismissible: false, // Prevent accidental dismissal
       builder: (context) => AlertDialog(
         title: Row(
           children: [
@@ -216,14 +342,14 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
             _BookingDetailRow(
               icon: Icons.access_time,
               label: 'Time Slot',
-              value: '${_formatTime(startTime)} - ${_formatTime(endTime)}',
+              value: DateTimeFormatter.formatTimeRange(startTime, endTime),
               colorScheme: colorScheme,
             ),
             const SizedBox(height: 12),
             _BookingDetailRow(
               icon: Icons.calendar_today,
               label: 'Date',
-              value: _formatDate(selectedDate),
+              value: DateTimeFormatter.formatDate(selectedDate),
               colorScheme: colorScheme,
             ),
             const SizedBox(height: 16),
@@ -265,6 +391,7 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
               setState(() {
                 _selectedSlotKey = slotKey;
               });
+              _saveBooking(context, room, startTime, endTime, selectedDate);
               _showBookingSuccess(context, room.name, startTime, endTime);
             },
             child: const Text('Confirm Booking'),
@@ -272,6 +399,36 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
         ],
       ),
     );
+  }
+
+  Future<void> _saveBooking(
+    BuildContext context,
+    Room room,
+    DateTime startTime,
+    DateTime endTime,
+    DateTime selectedDate,
+  ) async {
+    try {
+      final bookingId = '${room.id}_${startTime.millisecondsSinceEpoch}';
+      final booking = SavedBookingModel(
+        id: bookingId,
+        roomId: room.id,
+        roomName: room.name,
+        roomLocation: room.location,
+        roomCapacity: room.capacity,
+        roomType: room.type.name,
+        bookingDate: selectedDate,
+        startTime: startTime,
+        endTime: endTime,
+        createdAt: DateTime.now(),
+      );
+
+      final storage = BookingStorageService();
+      await storage.saveBooking(booking);
+    } catch (e) {
+      // Silently fail for demo purposes
+      debugPrint('Failed to save booking: $e');
+    }
   }
 
   void _showBookingSuccess(
@@ -283,6 +440,7 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    ScaffoldMessenger.of(context).clearSnackBars(); // Clear any existing snackbars
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -306,7 +464,7 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '$roomName • ${_formatTime(startTime)} - ${_formatTime(endTime)}',
+                    '$roomName • ${DateTimeFormatter.formatTimeRange(startTime, endTime)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onPrimary.withOpacity(0.9),
                     ),
@@ -323,13 +481,6 @@ class _RoomTypeTabViewState extends State<_RoomTypeTabView> {
     );
   }
 
-  String _formatTime(DateTime time) {
-    final hour = time.hour;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return '$displayHour:$minute $period';
-  }
 }
 
 /// Widget for displaying booking detail rows in confirmation modal
@@ -371,6 +522,56 @@ class _BookingDetailRow extends StatelessWidget {
   }
 }
 
+/// Widget for displaying legend items
+class _LegendItem extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color backgroundColor;
+  final String label;
+  final ThemeData theme;
+
+  const _LegendItem({
+    required this.icon,
+    required this.iconColor,
+    required this.backgroundColor,
+    required this.label,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(
+              color: iconColor.withOpacity(0.5),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            icon,
+            size: 12,
+            color: iconColor,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w500,
+            fontSize: 11,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Timetable Grid Widget
 /// Shows rooms as rows and time slots as columns
 class _TimetableGrid extends StatelessWidget {
@@ -378,12 +579,16 @@ class _TimetableGrid extends StatelessWidget {
   final DateTime selectedDate;
   final String? selectedSlotKey;
   final Function(String) onSlotTap;
+  final Set<String> favoriteRoomIds;
+  final Function(String) onFavoriteToggle;
 
   const _TimetableGrid({
     required this.rooms,
     required this.selectedDate,
     this.selectedSlotKey,
     required this.onSlotTap,
+    required this.favoriteRoomIds,
+    required this.onFavoriteToggle,
   });
 
   // Generate time slots: 9:00 AM to 6:00 PM (30-min increments)
@@ -460,8 +665,8 @@ class _TimetableGrid extends StatelessWidget {
                   child: Text(
                     time.substring(0, 5), // Show "09:00" format
                     style: textTheme.labelSmall?.copyWith(
-                      fontSize: 10,
-                      color: colorScheme.onSurface.withOpacity(0.6),
+                      fontSize: 11,
+                      color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
                 ),
@@ -490,7 +695,7 @@ class _TimetableGrid extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Room name and location
+          // Room name and location with favorite button
           Container(
             width: 120,
             padding: const EdgeInsets.all(8),
@@ -504,13 +709,32 @@ class _TimetableGrid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  room.name,
-                  style: textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        room.name,
+                        style: textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // Favorite button
+                    GestureDetector(
+                      onTap: () => onFavoriteToggle(room.id),
+                      child: Icon(
+                        favoriteRoomIds.contains(room.id)
+                            ? Icons.star
+                            : Icons.star_border,
+                        size: 18,
+                        color: favoriteRoomIds.contains(room.id)
+                            ? Colors.amber
+                            : colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 2),
                 Container(
@@ -522,7 +746,7 @@ class _TimetableGrid extends StatelessWidget {
                   child: Text(
                     room.location,
                     style: textTheme.labelSmall?.copyWith(
-                      fontSize: 9,
+                      fontSize: 11,
                       color: colorScheme.onPrimaryContainer,
                     ),
                     maxLines: 1,
@@ -564,36 +788,49 @@ class _TimetableGrid extends StatelessWidget {
   }) {
     Color backgroundColor;
     Color borderColor;
+    Widget? icon;
 
     if (isSelected) {
       backgroundColor = colorScheme.primary;
       borderColor = colorScheme.primary;
+      icon = Icon(
+        Icons.check_circle,
+        size: 20,
+        color: colorScheme.onPrimary,
+      );
     } else if (isBooked) {
       backgroundColor = colorScheme.surfaceVariant;
       borderColor = colorScheme.outline.withOpacity(0.2);
+      icon = Icon(
+        Icons.block,
+        size: 16,
+        color: colorScheme.onSurface.withOpacity(0.5),
+      );
     } else {
-      backgroundColor = Colors.green.withOpacity(0.2);
-      borderColor = Colors.green.withOpacity(0.3);
+      backgroundColor = Colors.green.withOpacity(0.3);
+      borderColor = Colors.green.withOpacity(0.4);
+      icon = Icon(
+        Icons.add_circle_outline,
+        size: 16,
+        color: Colors.green.shade700,
+      );
     }
 
     return GestureDetector(
       onTap: isBooked ? null : onTap,
       child: Container(
         width: 50,
+        height: 60,
         decoration: BoxDecoration(
-          color: backgroundColor,
           border: Border.all(
             color: borderColor,
             width: isSelected ? 2 : 1,
           ),
+          color: backgroundColor,
         ),
-        child: isSelected
-            ? Icon(
-                Icons.check,
-                size: 16,
-                color: colorScheme.onPrimary,
-              )
-            : null,
+        child: Center(
+          child: icon,
+        ),
       ),
     );
   }
@@ -606,7 +843,7 @@ class _TimetableGrid extends StatelessWidget {
   }
 
   String _slotKey(String roomId, DateTime start) {
-    return '$roomId-${start.millisecondsSinceEpoch}';
+    return '${roomId}___${start.millisecondsSinceEpoch}';
   }
 }
 
