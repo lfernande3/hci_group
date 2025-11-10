@@ -149,6 +149,32 @@ class _ACBalanceCard extends StatelessWidget {
             ? 'Low'
             : 'Critical';
 
+    // Shadow color and badge color based on status
+    Color shadowColor;
+    Color badgeColor;
+    double shadowBlur;
+    double shadowSpread;
+    switch (acDetails.status) {
+      case ACBalanceStatus.sufficient:
+        shadowColor = Colors.green;
+        badgeColor = Colors.green.shade300;
+        shadowBlur = 20.0;
+        shadowSpread = 4.0;
+        break;
+      case ACBalanceStatus.low:
+        shadowColor = Colors.orange;
+        badgeColor = Colors.orange.shade300;
+        shadowBlur = 18.0;
+        shadowSpread = 3.0;
+        break;
+      case ACBalanceStatus.critical:
+        shadowColor = Colors.red;
+        badgeColor = Colors.red.shade300;
+        shadowBlur = 25.0;
+        shadowSpread = 5.0;
+        break;
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       decoration: BoxDecoration(
@@ -167,6 +193,22 @@ class _ACBalanceCard extends StatelessWidget {
           color: AppColors.widgetAccent.withOpacity(0.3),
           width: 1.5,
         ),
+        boxShadow: [
+          // Outer glow
+          BoxShadow(
+            color: shadowColor.withOpacity(0.6),
+            blurRadius: shadowBlur,
+            spreadRadius: shadowSpread,
+            offset: const Offset(0, 4),
+          ),
+          // Inner glow for more visibility
+          BoxShadow(
+            color: shadowColor.withOpacity(0.3),
+            blurRadius: shadowBlur * 0.5,
+            spreadRadius: shadowSpread * 0.5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -199,14 +241,14 @@ class _ACBalanceCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: badgeColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
+                    border: Border.all(color: badgeColor.withOpacity(0.6), width: 1.5),
                   ),
                   child: Text(
                     statusText,
                     style: theme.textTheme.labelMedium?.copyWith(
-                      color: Colors.white,
+                      color: badgeColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
