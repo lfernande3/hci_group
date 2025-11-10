@@ -100,6 +100,18 @@ class HomePage extends StatelessWidget {
               child: _StudentLifeSection(),
             ),
             
+            // Campus Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: _CampusSection(),
+            ),
+            
+            // Contacts Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: _ContactsSection(),
+            ),
+            
             // Grid Section
             const Padding(
               padding: EdgeInsets.all(16),
@@ -428,23 +440,283 @@ class _StudentLifeSection extends StatelessWidget {
   }
 }
 
+class _CampusSection extends StatelessWidget {
+  const _CampusSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final buttons = [
+      {
+        'title': 'Campus Map',
+        'icon': Icons.map,
+        'color': AppColors.info,
+        'route': RouteConstants.campusMap,
+      },
+      {
+        'title': 'Facilities',
+        'icon': Icons.business,
+        'color': AppColors.secondaryOrange,
+        'route': RouteConstants.sportsFacilities,
+      },
+      {
+        'title': 'Library',
+        'icon': Icons.library_books,
+        'color': AppColors.primary,
+        'route': RouteConstants.campus, // Using campus route as placeholder
+      },
+      {
+        'title': 'Booking',
+        'icon': Icons.event_available,
+        'color': AppColors.secondaryPurple,
+        'route': RouteConstants.booking,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Campus',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Arrange buttons in rows of 2
+        ...List.generate(
+          (buttons.length / 2).ceil(),
+          (rowIndex) {
+            final startIndex = rowIndex * 2;
+            final endIndex = (startIndex + 2).clamp(0, buttons.length);
+            final rowButtons = buttons.sublist(startIndex, endIndex);
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildButton(
+                      context,
+                      title: rowButtons[0]['title'] as String,
+                      icon: rowButtons[0]['icon'] as IconData,
+                      color: rowButtons[0]['color'] as Color,
+                      route: rowButtons[0]['route'] as String,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  if (rowButtons.length > 1)
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        title: rowButtons[1]['title'] as String,
+                        icon: rowButtons[1]['icon'] as IconData,
+                        color: rowButtons[1]['color'] as Color,
+                        route: rowButtons[1]['route'] as String,
+                      ),
+                    )
+                  else
+                    const Expanded(child: SizedBox()),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButton(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required String route,
+  }) {
+    return InkWell(
+      onTap: () => context.go(route),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Circular icon container
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Title text
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ContactsSection extends StatelessWidget {
+  const _ContactsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final buttons = [
+      {
+        'title': 'Directory',
+        'icon': Icons.contacts,
+        'color': AppColors.primary,
+        'route': RouteConstants.contacts,
+      },
+      {
+        'title': 'Emergency',
+        'icon': Icons.emergency,
+        'color': AppColors.error,
+        'route': RouteConstants.emergency,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Contacts',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Arrange buttons in rows of 2
+        ...List.generate(
+          (buttons.length / 2).ceil(),
+          (rowIndex) {
+            final startIndex = rowIndex * 2;
+            final endIndex = (startIndex + 2).clamp(0, buttons.length);
+            final rowButtons = buttons.sublist(startIndex, endIndex);
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildButton(
+                      context,
+                      title: rowButtons[0]['title'] as String,
+                      icon: rowButtons[0]['icon'] as IconData,
+                      color: rowButtons[0]['color'] as Color,
+                      route: rowButtons[0]['route'] as String,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  if (rowButtons.length > 1)
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        title: rowButtons[1]['title'] as String,
+                        icon: rowButtons[1]['icon'] as IconData,
+                        color: rowButtons[1]['color'] as Color,
+                        route: rowButtons[1]['route'] as String,
+                      ),
+                    )
+                  else
+                    const Expanded(child: SizedBox()),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButton(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required String route,
+  }) {
+    return InkWell(
+      onTap: () => context.go(route),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Circular icon container
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Title text
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _GridSection extends StatelessWidget {
   const _GridSection();
 
   @override
   Widget build(BuildContext context) {
     final gridItems = [
-      // Existing features (duplicates removed - now in Quick Access Buttons above)
-      {
-        'title': 'Campus',
-        'icon': Icons.location_city,
-        'route': RouteConstants.campus,
-      },
-      {
-        'title': 'Contacts',
-        'icon': Icons.contacts,
-        'route': RouteConstants.contacts,
-      },
+      // Removed Campus and Contacts - now in dedicated sections above
     ];
 
     return Column(

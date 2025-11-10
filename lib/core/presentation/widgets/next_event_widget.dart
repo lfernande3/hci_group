@@ -103,7 +103,7 @@ class NextEventWidget extends StatelessWidget {
           child: Text(
             event.type.name.toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
-              color: AppColors.secondaryOrange,
+              color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 10,
             ),
